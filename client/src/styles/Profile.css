@@ -3,7 +3,7 @@ body {
     padding: 0;
     font-family: Arial, sans-serif;
     height: 100vh;
-    overflow: hidden; /* Empêche le défilement global */
+    overflow: hidden; 
 }
 
 .profile-container {
@@ -17,17 +17,17 @@ body {
     background-color: #2c3e50;
     color: white;
     padding: 25px;
-    overflow-y: auto; /* Défilement si contenu trop long */
+    overflow-y: auto; 
 }
 
 .main-content {
     flex: 1;
     padding: 30px;
-    overflow-y: auto; /* Défilement indépendant */
+    overflow-y: auto; 
     background-color: #f8f9fa;
 }
 
-/* Styles améliorés pour la sidebar */
+
 .sidebar h2 {
     color: #ecf0f1;
     margin-bottom: 30px;
@@ -55,7 +55,6 @@ body {
     background-color: #34495e;
 }
 
-/* Contenu principal */
 .main-content h1 {
     color: #2c3e50;
     margin-bottom: 30px;
@@ -76,19 +75,3 @@ body {
     font-size: 1.4rem;
 }
 
-/* Version responsive */
-@media (max-width: 768px) {
-    .profile-container {
-        flex-direction: column;
-        height: auto;
-    }
-    
-    .sidebar {
-        width: 100%;
-        padding: 15px;
-    }
-    
-    .main-content {
-        padding: 20px;
-    }
-}

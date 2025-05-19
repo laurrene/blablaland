@@ -1,4 +1,4 @@
-/* Supprime ces lignes du body si elles y sont */
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -16,7 +16,7 @@ body {
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
   width: 550%;
-  max-width: 500px; /* ⬅️ Augmenté ici pour que la boîte soit plus large */
+  max-width: 500px; 
 }
 
 .login-box {
