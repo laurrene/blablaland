@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import '../styles/NavigationBar.css';
 import '../styles/ForumPage.css';
 import { Link } from 'react-router-dom';
