@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import '../styles/NavigationBar.css';
 import '../styles/ForumPage.css';
+import { Link } from 'react-router-dom';
 
 const ForumPage = () => {
   const [messages, setMessages] = useState([]);
@@ -99,7 +100,7 @@ const ForumPage = () => {
           <div className="search-bar">
             <input type="text" placeholder="Rechercher..." />
           </div>
-          <a href="#profil">Profil</a>
+          <Link to="/profile">Profil</Link>
           <a href="#deconnexion">Déconnexion</a>
         </div>
       </header>

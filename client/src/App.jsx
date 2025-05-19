@@ -1,15 +1,17 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ForumPage from './components/ForumPage';
-import SparkleCursor from './components/SparkleCursor';
-import './App.css'; // Si tu veux ajouter des styles
+import Profile from './components/Profile';
+import './App.css';
 
 function App() {
   return (
-    <div className="app-container">
-      <ForumPage />
-      <SparkleCursor />
-      
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<ForumPage />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </Router>
   );
 }
 

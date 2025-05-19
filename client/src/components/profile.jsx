@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../style/Profile.css';
+import '../styles/Profile.css';
 
 function Profile() {
     const [activeSection, setActiveSection] = useState('informations');
