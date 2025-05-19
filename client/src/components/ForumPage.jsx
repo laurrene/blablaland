@@ -101,7 +101,8 @@ const ForumPage = () => {
             <input type="text" placeholder="Rechercher..." />
           </div>
           <Link to="/profile">Profil</Link>
-          <a href="#deconnexion">Déconnexion</a>
+          <Link to="/inscription">Inscription</Link>
+          <Link to="/connexion">Connexion</Link>
         </div>
       </header>
 
