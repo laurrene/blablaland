@@ -1,107 +1,102 @@
+/* Supprime ces lignes du body si elles y sont */
 body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    background-color: #f5f5f5;
-}
-
-.container {
-    width: 500px; 
-    text-align: center;
-    transform: scale(1.2); 
-    transform-origin: center;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f5f5f5;
+  background-image: url("groupes-parole-deuil-ussap-caf-1(1).jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 .login-box {
-    border: 1px solid #ddd;
-    padding: 40px; 
-    border-radius: 10px;
-    background-color: white;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.15); 
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+  width: 550%;
+  max-width: 500px; /* ⬅️ Augmenté ici pour que la boîte soit plus large */
+}
+
+.login-box {
+  border: none;
+  padding: 25px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
     color: #b92b27;
     margin-bottom: 15px;
-    font-size: 2.2rem; 
-}
-
-h2 {
-    font-size: 1.8rem;
-    margin-bottom: 10px; 
-    font-weight: 600;
-    color: #333;
+    font-size: 2rem;
 }
 
 p {
     margin-bottom: 25px;
     color: #555;
-    font-size: 1.1rem;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-color: #ddd;
+    margin: 20px 0;
 }
 
 .form-group {
     text-align: left;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 label {
-    font-size: 1.1rem; 
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
 }
 
 input {
     width: 100%;
-    padding: 12px;
-    font-size: 1.1rem;
+    padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 4px;
     box-sizing: border-box;
 }
 
 .submit-btn {
     width: 100%;
-    background-color: #4285F4; 
+    background-color: #b92b27;
     color: white;
-    padding: 14px;
-    font-size: 1.1rem;
+    padding: 12px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    margin-top: 15px;
-    transition: background-color 0.3s ease; 
-}
-
-.submit-btn:hover {
-    background-color: #3367D6; 
+    font-weight: bold;
+    margin-top: 10px;
 }
 
 .reset-btn {
     width: 100%;
-    background-color: #9E9E9E; 
-    color: white;
-    padding: 14px;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 6px;
+    background-color: transparent;
+    color: #b92b27;
+    padding: 12px;
+    border: 1px solid #b92b27;
+    border-radius: 4px;
     cursor: pointer;
-    margin-top: 15px;
-    transition: background-color 0.3s ease;
-}
-
-.reset-btn:hover {
-    background-color: #757575; 
+    font-weight: bold;
+    margin-top: 10px;
 }
 
 .footer {
-    margin-top: 30px;
-    font-size: 1rem;
+    margin-top: 20px;
+    font-size: 12px;
     color: #666;
 }
 
 a {
-    font-size: 1.1rem; 
+    color: #b92b27;
+    text-decoration: none;
+    font-weight: bold;
 }

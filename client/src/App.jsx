@@ -10,10 +10,10 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<ForumPage />} />
+        <Route path="/forum" element={<ForumPage />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/inscription" element={<Login/>} />
-        <Route path="/connexion" element={<SignUp />} />
+        <Route path="/inscription" element={<SignUp/>} />
+        <Route path="/connexion" element={<Login />} />
       </Routes>
     </Router>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/Login.css";
+import { Link } from 'react-router-dom';
 
 export default function ConnexionForm() {
     const [identifiant, setIdentifiant] = useState("");
@@ -26,7 +27,9 @@ export default function ConnexionForm() {
 
     return (
         <div className="container">
-            <h1>BlaBlaLand</h1>
+            <Link to="/forum">
+                <h1 style={{ color: "#b92b27", cursor: "pointer" }}>BlaBlaLand</h1>
+            </Link>
             <p>Votre voix compte – discutez, partagez, connectez !</p>
 
             <div className="login-box">
@@ -53,9 +56,9 @@ export default function ConnexionForm() {
                     <button type="submit" className="submit-btn">Se connecter</button>
                     <button type="button" className="reset-btn" onClick={handleReset}>Annuler</button>
                 </form>
-                <p style={{ marginTop: "15px" }}>
-                    <a href="#inscription">Pas de compte ? S'inscrire</a>
-                </p>
+                <Link to="/inscription">Pas de compte ? S'inscrire</Link>
+
+
             </div>
 
             <p className="footer">© BlaBlaLand, Inc. 2025</p>

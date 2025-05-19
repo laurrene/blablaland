@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/SignUp.css";
+import { Link } from 'react-router-dom';
 
 export default function InscriptionForm() {
     const [prenom, setPrenom] = useState("");
@@ -33,7 +34,10 @@ export default function InscriptionForm() {
 
     return (
         <div className="container">
-            <h1 style={{ color: "#b92b27" }}>BlaBlaLand</h1>
+            <Link to="/forum">
+                <h1 style={{ color: "#b92b27", cursor: "pointer" }}>BlaBlaLand</h1>
+            </Link>
+
             <p>Votre voix compte – discutez, partagez, connectez !</p>
 
             <div className="login-box">
@@ -64,7 +68,7 @@ export default function InscriptionForm() {
                     <button type="button" className="reset-btn" onClick={handleReset}>Annuler</button>
 
                 </form>
-                <p><a href="connexion.html">Déjà un compte ? Se connecter</a></p>
+                <Link to="/connexion">Déjà un compte?Se connecter</Link>
             </div>
 
             <p className="footer">©BlaBlaLand, Inc. 2025</p>
