@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/NavigationBar.css';
-import '../styles/forum.css';
+import '../styles/ForumPage.css';
 
 const ForumPage = () => {
   const [message, setMessage] = useState('');

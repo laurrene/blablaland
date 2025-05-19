@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../styles/inscription.css";
+import "../styles/SignUp.css";
 
 export default function InscriptionForm() {
     const [prenom, setPrenom] = useState("");
