@@ -58,7 +58,6 @@ export default function ConnexionForm() {
                 </form>
                 <Link to="/inscription">Pas de compte ? S'inscrire</Link>
 
-
             </div>
 
             <p className="footer">© BlaBlaLand, Inc. 2025</p>

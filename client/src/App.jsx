@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import ForumPage from './components/ForumPage';
 import Profile from './components/profile';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
+import ForumPage from './components/ForumPage';
 import SparkleCursor from './components/SparkleCursor';
 import './App.css';
 

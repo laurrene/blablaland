@@ -100,7 +100,7 @@ const ForumPage = () => {
   return (
     <div>
       <header className="navbar">
-        <div className="logo">Blablaland</div>
+        <Link to="/forum" className="logo">Blablaland</Link>
         <div className="nav-links">
           <div className="search-bar">
             <input
