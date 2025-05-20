@@ -35,10 +35,10 @@ export default function InscriptionForm() {
     return (
         <div className="container">
             <Link to="/forum">
-                <h1 style={{ color: "#b92b27", cursor: "pointer" }}>BlaBlaLand</h1>
+                <h1 style={{ color: "#b92b27", cursor: "pointer" }}>Blablaland</h1>
             </Link>
 
-            <p>Votre voix compte – discutez, partagez, connectez !</p>
+            <p>Blabla partout, silence nulle part.</p>
 
             <div className="login-box">
                 <p>Enregistrement</p>
@@ -68,7 +68,7 @@ export default function InscriptionForm() {
                     <button type="button" className="reset-btn" onClick={handleReset}>Annuler</button>
 
                 </form>
-                <Link to="/connexion">Déjà un compte?Se connecter</Link>
+                <Link to="/connexion">Déjà un compte? Se connecter</Link>
             </div>
 
             <p className="footer">©BlaBlaLand, Inc. 2025</p>

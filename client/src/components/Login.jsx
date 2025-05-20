@@ -28,9 +28,9 @@ export default function ConnexionForm() {
     return (
         <div className="container">
             <Link to="/forum">
-                <h1 style={{ color: "#b92b27", cursor: "pointer" }}>BlaBlaLand</h1>
+                <h1 style={{ color: "#b92b27", cursor: "pointer" }}>Blablaland</h1>
             </Link>
-            <p>Votre voix compte – discutez, partagez, connectez !</p>
+            <p>Blabla partout, silence nulle part.</p>
 
             <div className="login-box">
                 <h2>Connexion</h2>

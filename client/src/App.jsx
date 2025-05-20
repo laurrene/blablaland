@@ -1,14 +1,16 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ForumPage from './components/ForumPage';
-import Profile from './components/Profile';
+import Profile from './components/profile';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
+import SparkleCursor from './components/SparkleCursor';
 import './App.css';
 
 function App() {
   return (
     <Router>
+      <SparkleCursor />
       <Routes>
         <Route path="/" element={<ForumPage />} />
         <Route path="/profile" element={<Profile />} />
@@ -16,6 +18,7 @@ function App() {
         <Route path="/connexion" element={<Login />} />
       </Routes>
     </Router>
+    
   );
 }
 

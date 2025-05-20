@@ -1,5 +1,4 @@
-
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import '../styles/NavigationBar.css';
 import '../styles/ForumPage.css';
 import { Link } from 'react-router-dom';
@@ -10,6 +9,7 @@ const ForumPage = () => {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [activeFormats, setActiveFormats] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');  // Ajouté pour recherche
   const editorRef = useRef(null);
 
   const toggleFormat = (command) => {
@@ -92,13 +92,23 @@ const ForumPage = () => {
     );
   };
 
+  // Filtrer les messages en fonction de la recherche
+  const filteredMessages = messages.filter(msg =>
+    msg.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
       <header className="navbar">
         <div className="logo">Blablaland</div>
         <div className="nav-links">
           <div className="search-bar">
-            <input type="text" placeholder="Rechercher..." />
+            <input
+              type="text"
+              placeholder="Rechercher par titre..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
           <Link to="/profile">Profil</Link>
           <Link to="/inscription">Inscription</Link>
@@ -107,7 +117,7 @@ const ForumPage = () => {
       </header>
 
       <main className="forum-main">
-        <h1>Bienvenue sur le forum !</h1>
+        <h3>Blabla partout, silence nulle part.</h3>
 
         <button className="create-post-btn" onClick={() => setShowModal(true)}>
           Créer un post
@@ -133,12 +143,46 @@ const ForumPage = () => {
 
                 <div className="editor-container">
                   <div className="editor-toolbar">
-                    <button type="button" className={activeFormats.includes('bold') ? 'active' : ''} onClick={() => toggleFormat('bold')}><b>B</b></button>
-                    <button type="button" className={activeFormats.includes('italic') ? 'active' : ''} onClick={() => toggleFormat('italic')}><i>I</i></button>
-                    <button type="button" className={activeFormats.includes('strikeThrough') ? 'active' : ''} onClick={() => toggleFormat('strikeThrough')}><s>S</s></button>
-                    <button type="button" className={activeFormats.includes('blockquote') ? 'active' : ''} onClick={() => toggleFormat('blockquote')}>“”</button>
-                    <button type="button" onClick={() => document.execCommand('insertUnorderedList')}>•</button>
-                    <button type="button" onClick={() => document.execCommand('insertOrderedList')}>1.</button>
+                    <button
+                      type="button"
+                      className={activeFormats.includes('bold') ? 'active' : ''}
+                      onClick={() => toggleFormat('bold')}
+                    >
+                      <b>B</b>
+                    </button>
+                    <button
+                      type="button"
+                      className={activeFormats.includes('italic') ? 'active' : ''}
+                      onClick={() => toggleFormat('italic')}
+                    >
+                      <i>I</i>
+                    </button>
+                    <button
+                      type="button"
+                      className={activeFormats.includes('strikeThrough') ? 'active' : ''}
+                      onClick={() => toggleFormat('strikeThrough')}
+                    >
+                      <s>S</s>
+                    </button>
+                    <button
+                      type="button"
+                      className={activeFormats.includes('blockquote') ? 'active' : ''}
+                      onClick={() => toggleFormat('blockquote')}
+                    >
+                      “”
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => document.execCommand('insertUnorderedList')}
+                    >
+                      •
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => document.execCommand('insertOrderedList')}
+                    >
+                      1.
+                    </button>
                   </div>
                   <div
                     className="editor"
@@ -152,7 +196,9 @@ const ForumPage = () => {
 
                 <div className="modal-actions">
                   <button type="submit">Publier</button>
-                  <button type="button" onClick={() => setShowModal(false)}>Annuler</button>
+                  <button type="button" onClick={() => setShowModal(false)}>
+                    Annuler
+                  </button>
                 </div>
               </form>
             </div>
@@ -160,17 +206,21 @@ const ForumPage = () => {
         )}
 
         <div className="messages">
-          {messages.map((msg) => (
+          {filteredMessages.map((msg) => (
             <div key={msg.id} className="message-thread">
               <div className="main-message">
-                <div className="meta">{msg.user} – {msg.timestamp.toLocaleString()}</div>
+                <div className="meta">
+                  {msg.user} – {msg.timestamp.toLocaleString()}
+                </div>
                 <h3>{msg.title}</h3>
                 <div dangerouslySetInnerHTML={{ __html: msg.content }} />
               </div>
               <div className="comments-thread">
                 {msg.comments.map((c) => (
                   <div key={c.id} className="comment">
-                    <div className="meta">{c.user} – {c.timestamp.toLocaleString()}</div>
+                    <div className="meta">
+                      {c.user} – {c.timestamp.toLocaleString()}
+                    </div>
                     <div>{c.content}</div>
                   </div>
                 ))}
