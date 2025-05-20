@@ -9,18 +9,16 @@ const ForumPage = () => {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [activeFormats, setActiveFormats] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');  // Ajouté pour recherche
+  const [searchTerm, setSearchTerm] = useState('');
   const editorRef = useRef(null);
 
   const toggleFormat = (command) => {
     if (!editorRef.current) return;
-
     editorRef.current.focus();
 
     if (command === 'blockquote') {
       const isBlockquote = document.queryCommandValue('formatBlock') === 'blockquote';
       document.execCommand('formatBlock', false, isBlockquote ? 'div' : 'blockquote');
-
       const updated = [...activeFormats];
       if (isBlockquote) {
         setActiveFormats(updated.filter((c) => c !== command));
@@ -33,7 +31,6 @@ const ForumPage = () => {
 
     const isActive = document.queryCommandState(command);
     document.execCommand(command, false, null);
-
     const updated = [...activeFormats];
     if (isActive) {
       setActiveFormats(updated.filter((c) => c !== command));
@@ -53,7 +50,8 @@ const ForumPage = () => {
         title,
         content: message,
         timestamp: new Date(),
-        comments: []
+        comments: [],
+        isFavorite: false
       };
       setMessages([newPost, ...messages]);
       setTitle('');
@@ -92,7 +90,14 @@ const ForumPage = () => {
     );
   };
 
-  // Filtrer les messages en fonction de la recherche
+  const handleToggleFavorite = (messageId, isFavorite) => {
+    setMessages(prevMessages =>
+      prevMessages.map(msg =>
+        msg.id === messageId ? { ...msg, isFavorite } : msg
+      )
+    );
+  };
+
   const filteredMessages = messages.filter(msg =>
     msg.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -143,62 +148,26 @@ const ForumPage = () => {
 
                 <div className="editor-container">
                   <div className="editor-toolbar">
-                    <button
-                      type="button"
-                      className={activeFormats.includes('bold') ? 'active' : ''}
-                      onClick={() => toggleFormat('bold')}
-                    >
-                      <b>B</b>
-                    </button>
-                    <button
-                      type="button"
-                      className={activeFormats.includes('italic') ? 'active' : ''}
-                      onClick={() => toggleFormat('italic')}
-                    >
-                      <i>I</i>
-                    </button>
-                    <button
-                      type="button"
-                      className={activeFormats.includes('strikeThrough') ? 'active' : ''}
-                      onClick={() => toggleFormat('strikeThrough')}
-                    >
-                      <s>S</s>
-                    </button>
-                    <button
-                      type="button"
-                      className={activeFormats.includes('blockquote') ? 'active' : ''}
-                      onClick={() => toggleFormat('blockquote')}
-                    >
-                      “”
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => document.execCommand('insertUnorderedList')}
-                    >
-                      •
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => document.execCommand('insertOrderedList')}
-                    >
-                      1.
-                    </button>
+                    <button type="button" className={activeFormats.includes('bold') ? 'active' : ''} onClick={() => toggleFormat('bold')}><b>B</b></button>
+                    <button type="button" className={activeFormats.includes('italic') ? 'active' : ''} onClick={() => toggleFormat('italic')}><i>I</i></button>
+                    <button type="button" className={activeFormats.includes('strikeThrough') ? 'active' : ''} onClick={() => toggleFormat('strikeThrough')}><s>S</s></button>
+                    <button type="button" className={activeFormats.includes('blockquote') ? 'active' : ''} onClick={() => toggleFormat('blockquote')}>“”</button>
+                    <button type="button" onClick={() => document.execCommand('insertUnorderedList')}>•</button>
+                    <button type="button" onClick={() => document.execCommand('insertOrderedList')}>1.</button>
                   </div>
+
                   <div
                     className="editor"
                     contentEditable
                     ref={editorRef}
                     onInput={() => setMessage(editorRef.current.innerHTML)}
-                    placeholder="Contenu du message..."
                     suppressContentEditableWarning={true}
                   />
                 </div>
 
                 <div className="modal-actions">
                   <button type="submit">Publier</button>
-                  <button type="button" onClick={() => setShowModal(false)}>
-                    Annuler
-                  </button>
+                  <button type="button" onClick={() => setShowModal(false)}>Annuler</button>
                 </div>
               </form>
             </div>
@@ -209,12 +178,22 @@ const ForumPage = () => {
           {filteredMessages.map((msg) => (
             <div key={msg.id} className="message-thread">
               <div className="main-message">
+                <div className="message-header">
+                  <h3>{msg.title}</h3>
+                  <button 
+                    className={`favorite-btn ${msg.isFavorite ? 'favorited' : ''}`}
+                    onClick={() => handleToggleFavorite(msg.id, !msg.isFavorite)}
+                    aria-label={msg.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+                  >
+                    {msg.isFavorite ? '★' : '☆'}
+                  </button>
+                </div>
                 <div className="meta">
                   {msg.user} – {msg.timestamp.toLocaleString()}
                 </div>
-                <h3>{msg.title}</h3>
                 <div dangerouslySetInnerHTML={{ __html: msg.content }} />
               </div>
+
               <div className="comments-thread">
                 {msg.comments.map((c) => (
                   <div key={c.id} className="comment">
