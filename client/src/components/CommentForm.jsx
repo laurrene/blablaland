@@ -27,3 +27,7 @@ const CommentForm = ({ onSubmit }) => {
 };
 
 export default CommentForm;
+<<<<<<< HEAD
+=======
+
+>>>>>>> b7e54289206b0f2bdfcd640ed858865cd8364ee9
