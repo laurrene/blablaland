@@ -15,13 +15,11 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
 
   const toggleFormat = (command) => {
     if (!editorRef.current) return;
-
     editorRef.current.focus();
 
     if (command === 'blockquote') {
       const isBlockquote = document.queryCommandValue('formatBlock') === 'blockquote';
       document.execCommand('formatBlock', false, isBlockquote ? 'div' : 'blockquote');
-
       const updated = [...activeFormats];
       if (isBlockquote) {
         setActiveFormats(updated.filter((c) => c !== command));
@@ -34,7 +32,6 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
 
     const isActive = document.queryCommandState(command);
     document.execCommand(command, false, null);
-
     const updated = [...activeFormats];
     if (isActive) {
       setActiveFormats(updated.filter((c) => c !== command));
