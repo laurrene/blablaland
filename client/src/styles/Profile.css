@@ -111,11 +111,7 @@ input, textarea {
 
 button[type="submit"] {
     padding: 8px 15px;
-<<<<<<< HEAD
-    background-color: #d93838;
-=======
     background-color: #4CAF50;
->>>>>>> b7e54289206b0f2bdfcd640ed858865cd8364ee9
     color: white;
     border: none;
     border-radius: 4px;

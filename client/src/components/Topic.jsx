@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useState } from 'react';
 import CommentForm from './CommentForm';
 import '../styles/Topic.css'
@@ -27,16 +26,6 @@ const Topic = ({ msg, onComment, onToggleFavorite }) => {
             {isFavorite ? '★' : '☆'}
           </button>
         </div>
-=======
-import React from 'react';
-import CommentForm from './CommentForm';
-
-const Topic = ({ msg, onComment }) => {
-  return (
-    <div className="message-thread">
-      <div className="main-message">
-        <h3 className="topic-title">{msg.title}</h3>
->>>>>>> b7e54289206b0f2bdfcd640ed858865cd8364ee9
         <div className="meta">
           {msg.user} – {msg.timestamp.toLocaleString()}
         </div>
@@ -59,8 +48,4 @@ const Topic = ({ msg, onComment }) => {
   );
 };
 
-<<<<<<< HEAD
 export default Topic;
-=======
-export default Topic;
->>>>>>> b7e54289206b0f2bdfcd640ed858865cd8364ee9

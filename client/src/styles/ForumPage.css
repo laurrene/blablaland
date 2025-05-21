@@ -243,7 +243,6 @@ blockquote {
   padding-left: 15px;
   border-left: 3px solid #d1d5db;
   color: #555;
-<<<<<<< HEAD
 }
 .message-thread {
   position: relative;
@@ -288,6 +287,4 @@ blockquote {
   color: #666;
   font-size: 0.9rem;
   margin-bottom: 10px;
-=======
->>>>>>> b7e54289206b0f2bdfcd640ed858865cd8364ee9
 }
