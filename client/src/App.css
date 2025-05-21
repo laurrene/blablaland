@@ -1,0 +1,27 @@
+/* src/App.css */
+
+/* Reset global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Assure-toi que le root et le body font 100% de la hauteur et largeur */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+}
+
+/* Conteneur principal qui prend tout l’écran */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  height: 100%;
+  width: 100%;
+  background-color: #f8fafc; /* même couleur que ton body si besoin */
+}
+

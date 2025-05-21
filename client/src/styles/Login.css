@@ -1,0 +1,106 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f5f5f5;
+  background-image: url("groupes-parole-deuil-ussap-caf-1(1).jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.login-box {
+  border: none;
+  padding: 25px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+h1 {
+    color: #b92b27;
+    margin-bottom: 15px;
+    font-size: 2rem;
+}
+
+p {
+    margin-bottom: 25px;
+    color: #555;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-color: #ddd;
+    margin: 20px 0;
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.submit-btn {
+    width: 100%;
+    background-color: #e74c3c; /* Rouge initial */
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #c0392b; /* Rouge plus foncé au survol */
+}
+
+.reset-btn {
+    width: 100%;
+    background-color: transparent;
+    color: #b92b27;
+    padding: 12px; /* Même taille que submit-btn */
+    border: 1px solid #b92b27;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.reset-btn:hover {
+    background-color: #f5f5f5;
+    border-color: #8c1c13;
+    color: #8c1c13;
+}
+
+.footer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #666;
+}
+
+a {
+    color: #b92b27;
+    text-decoration: none;
+    font-weight: bold;
+}
