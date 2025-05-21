@@ -5,7 +5,8 @@ const bcrypt = require('bcrypt');
 const app = express();
 app.use(express.json());
 
-const uri = 'mongodb://localhost:27017';
+const uri = 'mongodb+srv://candya:59Cpsxl2NyGf1UnG@blablaland.j7jbyqi.mongodb.net/blablaland?retryWrites=true&w=majority';
+
 const client = new MongoClient(uri);
 
 let db, usersCollection;
