@@ -107,13 +107,20 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Link to="/profile">Profil</Link>
-          {!isLoggedIn && <Link to="/inscription">Inscription</Link>}
-          {!isLoggedIn && <Link to="/connexion">Connexion</Link>}
-          {isLoggedIn && (
-            <button className="logout-btn" onClick={onLogout}>Déconnexion</button>
+
+          {!isLoggedIn ? (
+            <>
+              <Link to="/inscription">Inscription</Link>
+              <Link to="/connexion">Connexion</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/profile">Profil</Link>
+              <button className="logout-btn" onClick={onLogout}>Déconnexion</button>
+            </>
           )}
         </div>
+
       </header>
 
       <main className="forum-main">
