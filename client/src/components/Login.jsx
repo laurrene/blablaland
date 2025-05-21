@@ -18,23 +18,22 @@ export default function ConnexionForm({ setIsLoggedIn }) {
 
         setErreur("");
         try {
-            const res = await fetch('http://localhost:3000/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: identifiant, password }),
+            const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: identifiant, password }),
             });
 
             const data = await res.json();
 
             if (!res.ok) {
-            setErreur(data.error || "Erreur lors de la connexion");
+                setErreur(data.error || "Erreur lors de la connexion");
             } else {
                 alert("Connexion réussie !");
-                localStorage.setItem('isLoggedIn', 'true');  // <-- Stocke la connexion persistante
+                localStorage.setItem('isLoggedIn', 'true');  // Stockage session locale
                 setIsLoggedIn(true);
                 navigate("/forum");
             }
-
         } catch (err) {
             setErreur("Erreur réseau");
         }

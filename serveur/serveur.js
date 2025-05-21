@@ -32,20 +32,31 @@ startServer();
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("Tentative de connexion :", email);  // <-- LOG ICI
+
     if (!email || !password) return res.status(400).json({ error: "Champs manquants" });
 
     const user = await usersCollection.findOne({ email });
-    if (!user) return res.status(401).json({ error: "Utilisateur inconnu" });
+    if (!user) {
+      console.log("Utilisateur introuvable !");
+      return res.status(401).json({ error: "Utilisateur inconnu" });
+    }
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(401).json({ error: "Mot de passe incorrect" });
+    if (!valid) {
+      console.log("Mot de passe invalide !");
+      return res.status(401).json({ error: "Mot de passe incorrect" });
+    }
 
+    console.log("Connexion réussie !");
     res.json({ message: "Connexion réussie", user: { prenom: user.prenom, nom: user.nom, email: user.email } });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
 
 // Inscription
 app.post('/api/signup', async (req, res) => {

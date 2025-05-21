@@ -26,7 +26,7 @@ export default function InscriptionForm() {
 
         setErreur("");
         try {
-            const res = await fetch('http://localhost:3000/api/signup', {
+            const res = await fetch('/api/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prenom, nom, email: identifiant, password }),
@@ -38,7 +38,7 @@ export default function InscriptionForm() {
                 setErreur(data.error || "Erreur lors de l'inscription");
             } else {
                 alert("Inscription réussie !");
-                navigate("/connexion");  // redirige vers connexion après inscription
+                navigate("/connexion");
             }
         } catch (err) {
             setErreur("Erreur réseau");
@@ -90,9 +90,8 @@ export default function InscriptionForm() {
 
                     <button type="submit" className="submit-btn">Enregistrement</button>
                     <button type="button" className="reset-btn" onClick={handleReset}>Annuler</button>
-
                 </form>
-                <Link to="/connexion">Déjà un compte? Se connecter</Link>
+                <Link to="/connexion">Déjà un compte ? Se connecter</Link>
             </div>
 
             <p className="footer">©BlaBlaLand, Inc. 2025</p>
