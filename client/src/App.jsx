@@ -12,6 +12,11 @@ function App() {
     return localStorage.getItem('isLoggedIn') === 'true';
   });
 
+  // Nouveau state pour stocker l'email de l'utilisateur connecté
+  const [userEmail, setUserEmail] = useState(() => {
+    return localStorage.getItem('userEmail') || null;
+  });
+
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem('forumMessages');
     return saved ? JSON.parse(saved).map(m => ({
@@ -23,7 +28,9 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');   // Supprime aussi l'email au logout
     setIsLoggedIn(false);
+    setUserEmail(null);
   };
 
   return (
@@ -31,12 +38,28 @@ function App() {
       <SparkleCursor />
       <Routes>
         <Route path="/" element={<Navigate to="/forum" />} />
-        <Route path="/forum" element={<ForumPage isLoggedIn={isLoggedIn} onLogout={handleLogout} messages={messages} setMessages={setMessages} />} />
+        <Route 
+          path="/forum" 
+          element={
+            <ForumPage 
+              isLoggedIn={isLoggedIn} 
+              onLogout={handleLogout} 
+              messages={messages} 
+              setMessages={setMessages}
+              userEmail={userEmail}  // Passe l'email connecté
+            />
+          } 
+        />
         <Route path="/profile" element={<Profile messages={messages} setMessages={setMessages} />} />
         <Route path="/inscription" element={<SignUp />} />
         <Route 
           path="/connexion" 
-          element={<Login setIsLoggedIn={setIsLoggedIn} />} 
+          element={
+            <Login 
+              setIsLoggedIn={setIsLoggedIn} 
+              setUserEmail={setUserEmail}  // Permet au Login de sauvegarder l'email
+            />
+          } 
         />
       </Routes>
     </Router>
