@@ -4,7 +4,8 @@ import '../styles/NavigationBar.css';
 import '../styles/ForumPage.css';
 import CommentForm from './CommentForm';
 
-const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
+const ForumPage = ({ isLoggedIn, onLogout }) => {
+  const [messages, setMessages] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
@@ -16,8 +17,20 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
   const editorRef = useRef(null);
 
   useEffect(() => {
-    localStorage.setItem('forumMessages', JSON.stringify(messages));
-  }, [messages]);
+    // Récupération des topics depuis le serveur
+    const fetchTopics = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/topics');
+        const data = await response.json();
+        const sorted = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        setMessages(sorted);
+      } catch (err) {
+        console.error("Erreur lors du chargement des topics :", err);
+      }
+    };
+
+    fetchTopics();
+  }, []);
 
   const toggleFormat = (command) => {
     if (!editorRef.current) return;
@@ -37,30 +50,43 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
     );
   };
 
-  const handlePost = (e) => {
+  const handlePost = async (e) => {
     e.preventDefault();
     if (title.trim() !== '' && message.trim() !== '') {
       const newPost = {
-        id: Date.now(),
         user: 'Moi',
         title,
         content: message,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         comments: [],
         isFavorite: false,
       };
-      setMessages([newPost, ...messages]);
-      setTitle('');
-      setMessage('');
-      setShowModal(false);
-      setActiveFormats([]);
+
+      try {
+        const response = await fetch('http://localhost:3000/api/topics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newPost),
+        });
+
+        if (!response.ok) throw new Error('Erreur serveur');
+
+        const savedPost = await response.json();
+        setMessages([savedPost, ...messages]);
+        setTitle('');
+        setMessage('');
+        setShowModal(false);
+        setActiveFormats([]);
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi du topic :', error);
+      }
     }
   };
 
   const handleAddComment = (postId, newComment) => {
     setMessages((prev) =>
       prev.map((msg) =>
-        msg.id === postId && newComment.trim() !== ''
+        msg._id === postId && newComment.trim() !== ''
           ? {
               ...msg,
               comments: [
@@ -81,7 +107,7 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
   const handleToggleFavorite = (postId) => {
     setMessages((prev) =>
       prev.map((msg) =>
-        msg.id === postId ? { ...msg, isFavorite: !msg.isFavorite } : msg
+        msg._id === postId ? { ...msg, isFavorite: !msg.isFavorite } : msg
       )
     );
   };
@@ -89,8 +115,9 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
   const filteredMessages = messages.filter((msg) => {
     const inTitle = msg.title.toLowerCase().includes(searchTerm.toLowerCase());
     const byAuthor = msg.user.toLowerCase().includes(searchAuthor.toLowerCase());
-    const inDateRange = (!startDate || new Date(msg.timestamp) >= new Date(startDate)) &&
-                        (!endDate || new Date(msg.timestamp) <= new Date(endDate));
+    const inDateRange =
+      (!startDate || new Date(msg.timestamp) >= new Date(startDate)) &&
+      (!endDate || new Date(msg.timestamp) <= new Date(endDate));
     return inTitle && byAuthor && inDateRange;
   });
 
@@ -102,41 +129,20 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
           <div className="search-bar">
             <div className="search-bar-title">Recherche</div>
             <div className="search-row">
-              <input
-                type="text"
-                placeholder="Titre..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Auteur..."
-                value={searchAuthor}
-                onChange={(e) => setSearchAuthor(e.target.value)}
-              />
+              <input type="text" placeholder="Titre..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              <input type="text" placeholder="Auteur..." value={searchAuthor} onChange={(e) => setSearchAuthor(e.target.value)} />
             </div>
             <div className="search-row">
               <div>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  placeholder="Date de début"
-                />
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                 <div className="date-range-label">(inclus)</div>
               </div>
               <div>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  placeholder="Date de fin"
-                />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                 <div className="date-range-label">(exclus)</div>
               </div>
             </div>
           </div>
-
           {!isLoggedIn ? (
             <>
               <Link to="/inscription">Inscription</Link>
@@ -154,9 +160,7 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
       <main className="forum-main">
         <h3>Blabla partout, silence nulle part.</h3>
         {isLoggedIn && (
-          <button className="create-post-btn" onClick={() => setShowModal(true)}>
-            Créer un post
-          </button>
+          <button className="create-post-btn" onClick={() => setShowModal(true)}>Créer un post</button>
         )}
 
         {showModal && (
@@ -207,17 +211,17 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
 
         <div className="messages">
           {filteredMessages.map((msg) => (
-            <div key={msg.id} className="message-thread">
+            <div key={msg._id} className="message-thread">
               <button
                 className={`favorite-btn ${msg.isFavorite ? 'favorited' : ''}`}
-                onClick={() => handleToggleFavorite(msg.id)}
+                onClick={() => handleToggleFavorite(msg._id)}
                 aria-label={msg.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
               >
                 {msg.isFavorite ? '★' : '☆'}
               </button>
               <div className="main-message">
                 <div className="meta">
-                  {msg.user} – {msg.timestamp.toLocaleString()}
+                  {msg.user} – {new Date(msg.timestamp).toLocaleString()}
                 </div>
                 <h3>{msg.title}</h3>
                 <div dangerouslySetInnerHTML={{ __html: msg.content }} />
@@ -231,7 +235,7 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
                     <div>{c.content}</div>
                   </div>
                 ))}
-                <CommentForm onSubmit={(newComment) => handleAddComment(msg.id, newComment)} />
+                <CommentForm onSubmit={(newComment) => handleAddComment(msg._id, newComment)} />
               </div>
             </div>
           ))}
