@@ -1,32 +1,81 @@
-import { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import '../styles/TopicForm.css'; // Crée ce fichier si tu veux styliser
 
-const TopicForm = ({ onSubmit }) => {
+const TopicForm = ({ onSubmit, onCancel }) => {
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [activeFormats, setActiveFormats] = useState([]);
+  const editorRef = useRef(null);
+
+  const toggleFormat = (command) => {
+    if (!editorRef.current) return;
+    editorRef.current.focus();
+
+    if (command === 'blockquote') {
+      const isBlockquote = document.queryCommandValue('formatBlock') === 'blockquote';
+      document.execCommand('formatBlock', false, isBlockquote ? 'div' : 'blockquote');
+      setActiveFormats((prev) =>
+        isBlockquote ? prev.filter((c) => c !== command) : [...prev, command]
+      );
+      return;
+    }
+
+    const isActive = document.queryCommandState(command);
+    document.execCommand(command, false, null);
+    setActiveFormats((prev) =>
+      isActive ? prev.filter((c) => c !== command) : [...prev, command]
+    );
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const content = editorRef.current.innerHTML;
+
     if (title.trim() && content.trim()) {
       onSubmit({ title, content });
       setTitle('');
-      setContent('');
+      editorRef.current.innerHTML = '';
+      setActiveFormats([]);
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Titre du topic"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <textarea
-        placeholder="Contenu du topic"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-      />
-      <button type="submit">Poster</button>
+      <div className="form-group">
+        <label htmlFor="title">Titre</label>
+        <input
+          type="text"
+          id="title"
+          className="title-input"
+          placeholder="Titre du sujet"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="editor-container">
+        <div className="editor-toolbar">
+          <button type="button" className={activeFormats.includes('bold') ? 'active' : ''} onClick={() => toggleFormat('bold')}><b>B</b></button>
+          <button type="button" className={activeFormats.includes('italic') ? 'active' : ''} onClick={() => toggleFormat('italic')}><i>I</i></button>
+          <button type="button" className={activeFormats.includes('strikeThrough') ? 'active' : ''} onClick={() => toggleFormat('strikeThrough')}><s>S</s></button>
+          <button type="button" className={activeFormats.includes('blockquote') ? 'active' : ''} onClick={() => toggleFormat('blockquote')}>“”</button>
+          <button type="button" onClick={() => document.execCommand('insertUnorderedList')}>•</button>
+          <button type="button" onClick={() => document.execCommand('insertOrderedList')}>1.</button>
+        </div>
+        <div
+          className="editor"
+          contentEditable
+          ref={editorRef}
+          placeholder="Contenu du message..."
+          onInput={() => {}}
+          suppressContentEditableWarning={true}
+        />
+      </div>
+
+      <div className="modal-actions">
+        <button type="submit">Publier</button>
+        <button type="button" onClick={onCancel}>Annuler</button>
+      </div>
     </form>
   );
 };
