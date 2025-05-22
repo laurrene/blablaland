@@ -4,7 +4,7 @@ import '../styles/NavigationBar.css';
 import '../styles/ForumPage.css';
 import CommentForm from './CommentForm';
 
-const ForumPage = ({ isLoggedIn, onLogout }) => {
+const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   const [messages, setMessages] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
@@ -54,7 +54,7 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
     e.preventDefault();
     if (title.trim() !== '' && message.trim() !== '') {
       const newPost = {
-        user: 'Moi',
+        user: userEmail || 'Anonyme',
         title,
         content: message,
         timestamp: new Date().toISOString(),
@@ -84,16 +84,18 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
   };
 
   const handleAddComment = (postId, newComment) => {
+    if (newComment.trim() === '') return;
+
     setMessages((prev) =>
       prev.map((msg) =>
-        msg._id === postId && newComment.trim() !== ''
+        msg._id === postId
           ? {
               ...msg,
               comments: [
                 ...msg.comments,
                 {
                   id: Date.now(),
-                  user: 'Moi',
+                  user: userEmail || 'Anonyme',
                   content: newComment,
                   timestamp: new Date(),
                 },
@@ -237,7 +239,7 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
                     <div>{c.content}</div>
                   </div>
                 ))}
-                <CommentForm onSubmit={(newComment) => handleAddComment(msg._id, newComment)} />
+                {isLoggedIn && <CommentForm onSubmit={(newComment) => handleAddComment(msg._id, newComment)} />}
               </div>
             </div>
           ))}

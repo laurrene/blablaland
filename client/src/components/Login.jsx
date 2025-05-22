@@ -2,7 +2,7 @@ import { useState } from "react";
 import "../styles/Login.css";
 import { Link, useNavigate } from 'react-router-dom';
 
-export default function ConnexionForm({ setIsLoggedIn }) {
+export default function ConnexionForm({ setIsLoggedIn, setUserEmail }) {
     const [identifiant, setIdentifiant] = useState("");
     const [password, setPassword] = useState("");
     const [erreur, setErreur] = useState("");
@@ -19,9 +19,9 @@ export default function ConnexionForm({ setIsLoggedIn }) {
         setErreur("");
         try {
             const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: identifiant, password }),
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: identifiant, password }),
             });
 
             const data = await res.json();
@@ -30,8 +30,10 @@ export default function ConnexionForm({ setIsLoggedIn }) {
                 setErreur(data.error || "Erreur lors de la connexion");
             } else {
                 alert("Connexion réussie !");
-                localStorage.setItem('isLoggedIn', 'true');  // Stockage session locale
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', identifiant);
                 setIsLoggedIn(true);
+                setUserEmail(identifiant);
                 navigate("/forum");
             }
         } catch (err) {

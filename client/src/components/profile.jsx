@@ -1,16 +1,22 @@
-// client/components/profile.jsx
+// client/components/Profile.jsx
 import { useState, useEffect } from 'react';
 import '../styles/Profile.css';
 
-function Profile({ isLoggedIn, messages, setMessages }) {
+function Profile({ isLoggedIn, messages, setMessages, userEmail }) {
   const [activeSection, setActiveSection] = useState('informations');
   const [postedTopics, setPostedTopics] = useState([]);
+  const [userInfo, setUserInfo] = useState({
+    username: 'LaurreneLI',
+    email: userEmail || 'laurrene@example.com',
+    joinDate: 'Janvier 2025'
+  });
 
   useEffect(() => {
     // Filtrer les topics postés par l'utilisateur actuel
-    const userTopics = messages.filter(topic => topic.user === 'Moi');
+    // On utilise maintenant userEmail pour identifier l'utilisateur
+    const userTopics = messages.filter(topic => topic.user === userInfo.email);
     setPostedTopics(userTopics);
-  }, [messages]);
+  }, [messages, userInfo.email]);
 
   const showSection = (sectionId) => {
     setActiveSection(sectionId);
@@ -45,13 +51,13 @@ function Profile({ isLoggedIn, messages, setMessages }) {
       </div>
 
       <div className="main-content">
-        <h1>Bienvenue sur la page de profil</h1>
+        <h1>Bienvenue sur votre page de profil</h1>
 
         <div className={`content-section ${activeSection === 'informations' ? 'active' : ''}`}>
           <h2>Informations personnelles</h2>
-          <p>Nom d'utilisateur : LaurreneLI</p>
-          <p>Email : laurrene@example.com</p>
-          <p>Membre depuis : Janvier 2025</p>
+          <p>Nom d'utilisateur : {userInfo.username}</p>
+          <p>Email : {userInfo.email}</p>
+          <p>Membre depuis : {userInfo.joinDate}</p>
         </div>
 
         <div className={`content-section ${activeSection === 'profil' ? 'active' : ''}`}>
@@ -65,7 +71,14 @@ function Profile({ isLoggedIn, messages, setMessages }) {
             {postedTopics.length > 0 ? (
               postedTopics.map(topic => (
                 <div key={topic._id} className="topic-item">
-                  <h3>{topic.title}</h3>
+                  <h3>
+                    <a href={`/forum#topic-${topic._id}`} className="topic-link">
+                      {topic.title}
+                    </a>
+                  </h3>
+                  <div className="topic-meta">
+                    Posté le: {new Date(topic.timestamp).toLocaleDateString()}
+                  </div>
                   <button 
                     className="delete-topic-btn"
                     onClick={() => handleDeleteTopic(topic._id)}

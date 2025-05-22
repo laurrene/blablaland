@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ForumPage from './components/ForumPage';
-import Profile from './components/profile';
+import Profile from './components/profile'; 
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import SparkleCursor from './components/SparkleCursor';
@@ -10,6 +10,10 @@ import './App.css';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('isLoggedIn') === 'true';
+  });
+
+  const [userEmail, setUserEmail] = useState(() => {
+    return localStorage.getItem('userEmail') || null;
   });
 
   const [messages, setMessages] = useState([]);
@@ -34,14 +38,15 @@ function App() {
     fetchMessages();
   }, []);
 
-  if (loading) return <div>Chargement...</div>;
-  if (error) return <div>Erreur: {error}</div>;
-
-
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');
     setIsLoggedIn(false);
+    setUserEmail(null);
   };
+
+  if (loading) return <div>Chargement...</div>;
+  if (error) return <div>Erreur: {error}</div>;
 
   return (
     <Router>
@@ -55,7 +60,8 @@ function App() {
               isLoggedIn={isLoggedIn} 
               onLogout={handleLogout} 
               messages={messages} 
-              setMessages={setMessages} 
+              setMessages={setMessages}
+              userEmail={userEmail}
             />
           } 
         />
@@ -63,16 +69,22 @@ function App() {
           path="/profile" 
           element={
             <Profile 
-              isLoggedIn={isLoggedIn} 
+              isLoggedIn={isLoggedIn}
               messages={messages} 
-              setMessages={setMessages} 
+              setMessages={setMessages}
+              userEmail={userEmail}
             />
           } 
         />
         <Route path="/inscription" element={<SignUp />} />
         <Route 
           path="/connexion" 
-          element={<Login setIsLoggedIn={setIsLoggedIn} />} 
+          element={
+            <Login 
+              setIsLoggedIn={setIsLoggedIn} 
+              setUserEmail={setUserEmail}
+            />
+          } 
         />
       </Routes>
     </Router>
