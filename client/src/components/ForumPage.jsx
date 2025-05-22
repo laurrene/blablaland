@@ -4,15 +4,8 @@ import '../styles/NavigationBar.css';
 import '../styles/ForumPage.css';
 import CommentForm from './CommentForm';
 
-const ForumPage = ({ isLoggedIn, onLogout }) => {
-  const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem('forumMessages');
-    return saved ? JSON.parse(saved).map(m => ({
-      ...m,
-      timestamp: new Date(m.timestamp),
-      comments: m.comments.map(c => ({ ...c, timestamp: new Date(c.timestamp) }))
-    })) : [];
-  });
+
+const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
 
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
@@ -23,7 +16,7 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
 
   useEffect(() => {
     localStorage.setItem('forumMessages', JSON.stringify(messages));
-  }, [messages]);
+  }, [messages]);;
 
   const toggleFormat = (command) => {
     if (!editorRef.current) return;

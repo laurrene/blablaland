@@ -12,6 +12,15 @@ function App() {
     return localStorage.getItem('isLoggedIn') === 'true';
   });
 
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('forumMessages');
+    return saved ? JSON.parse(saved).map(m => ({
+      ...m,
+      timestamp: new Date(m.timestamp),
+      comments: m.comments.map(c => ({ ...c, timestamp: new Date(c.timestamp) }))
+    })) : [];
+  });
+
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     setIsLoggedIn(false);
@@ -22,8 +31,8 @@ function App() {
       <SparkleCursor />
       <Routes>
         <Route path="/" element={<Navigate to="/forum" />} />
-        <Route path="/forum" element={<ForumPage isLoggedIn={isLoggedIn} onLogout={handleLogout} />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/forum" element={<ForumPage isLoggedIn={isLoggedIn} onLogout={handleLogout} messages={messages} setMessages={setMessages} />} />
+        <Route path="/profile" element={<Profile messages={messages} setMessages={setMessages} />} />
         <Route path="/inscription" element={<SignUp />} />
         <Route 
           path="/connexion" 
