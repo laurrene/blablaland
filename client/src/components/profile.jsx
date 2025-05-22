@@ -72,6 +72,9 @@ function Profile({ messages, setMessages }) {
           <p>Liste des sujets que vous avez mis en favoris.</p>
         </div>
 
+
+        
+
         <div className={`content-section ${activeSection === 'messages' ? 'active' : ''}`}>
           <h2>Messages envoyés</h2>
           <p>Historique de vos messages privés envoyés.</p>
