@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 
@@ -28,7 +28,6 @@ async function startServer() {
 }
 
 startServer();
-
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -91,6 +90,22 @@ app.get('/api/topics', async (req, res) => {
     res.json(topics);
   } catch (err) {
     console.error('Erreur serveur (GET /api/topics) :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+app.delete('/api/topics/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.collection('topics').deleteOne({ _id: new ObjectId(id) });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Topic non trouvé' });
+    }
+    
+    res.status(200).json({ message: 'Topic supprimé avec succès' });
+  } catch (err) {
+    console.error('Erreur serveur (DELETE /api/topics/:id) :', err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });

@@ -1,26 +1,36 @@
-import { useState } from 'react';
+// client/components/profile.jsx
+import { useState, useEffect } from 'react';
 import '../styles/Profile.css';
-import TopicForm from './TopicForm';
 
-function Profile({ messages, setMessages }) {
+function Profile({ isLoggedIn, messages, setMessages }) {
   const [activeSection, setActiveSection] = useState('informations');
   const [postedTopics, setPostedTopics] = useState([]);
+
+  useEffect(() => {
+    // Filtrer les topics postés par l'utilisateur actuel
+    const userTopics = messages.filter(topic => topic.user === 'Moi');
+    setPostedTopics(userTopics);
+  }, [messages]);
 
   const showSection = (sectionId) => {
     setActiveSection(sectionId);
   };
 
-  const handleDeleteTopic = (topicId) => {
-    // Supprimer le topic de la liste des messages
-    const updatedMessages = messages.filter(topic => topic.id !== topicId);
-    setMessages(updatedMessages);
+  const handleDeleteTopic = async (topicId) => {
+    try {
+      // Suppression dans la base de données
+      const response = await fetch(`http://localhost:3000/api/topics/${topicId}`, {
+        method: 'DELETE'
+      });
 
-    // Supprimer le topic de la liste des topics postés (si utilisé)
-    const updatedPostedTopics = postedTopics.filter(topic => topic.id !== topicId);
-    setPostedTopics(updatedPostedTopics);
+      if (!response.ok) throw new Error('Erreur lors de la suppression');
 
-    // Mettre à jour le localStorage
-    localStorage.setItem('forumMessages', JSON.stringify(updatedMessages));
+      // Mise à jour de l'état local
+      const updatedMessages = messages.filter(topic => topic._id !== topicId);
+      setMessages(updatedMessages);
+    } catch (error) {
+      console.error('Erreur lors de la suppression du topic:', error);
+    }
   };
 
   return (
@@ -52,18 +62,21 @@ function Profile({ messages, setMessages }) {
         <div className={`content-section ${activeSection === 'topicsPostes' ? 'active' : ''}`}>
           <h2>Topics postés</h2>
           <div className="topics-list">
-            {messages
-              .filter(topic => topic.user === 'Moi')
-              .map(topic => (
-                <div key={topic.id} className="topic">
+            {postedTopics.length > 0 ? (
+              postedTopics.map(topic => (
+                <div key={topic._id} className="topic-item">
                   <h3>{topic.title}</h3>
-                  <div className="meta">
-                    {topic.user} – {new Date(topic.timestamp).toLocaleString()}
-                  </div>
-                  <div dangerouslySetInnerHTML={{ __html: topic.content }} />
-                  <button onClick={() => handleDeleteTopic(topic.id)}>🗑 Supprimer</button>
+                  <button 
+                    className="delete-topic-btn"
+                    onClick={() => handleDeleteTopic(topic._id)}
+                  >
+                    Supprimer
+                  </button>
                 </div>
-              ))}
+              ))
+            ) : (
+              <p>Aucun topic posté pour le moment.</p>
+            )}
           </div>
         </div>
 
@@ -71,9 +84,6 @@ function Profile({ messages, setMessages }) {
           <h2>Topics favoris</h2>
           <p>Liste des sujets que vous avez mis en favoris.</p>
         </div>
-
-
-        
 
         <div className={`content-section ${activeSection === 'messages' ? 'active' : ''}`}>
           <h2>Messages envoyés</h2>

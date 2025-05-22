@@ -104,6 +104,8 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
     );
   };
 
+  
+
   const handleToggleFavorite = (postId) => {
     setMessages((prev) =>
       prev.map((msg) =>
