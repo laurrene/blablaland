@@ -310,3 +310,33 @@ blockquote {
 .favorite-btn.favorited {
   color: gold;
 }
+
+/* test */
+
+.topic-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.topic-form input[type="text"],
+.topic-form textarea {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+}
+
+.topic-form button {
+  align-self: flex-start;
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.topic-form button:hover {
+  background-color: #45a049;
+}

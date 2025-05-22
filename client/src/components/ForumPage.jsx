@@ -1,17 +1,29 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/NavigationBar.css';
 import '../styles/ForumPage.css';
 import CommentForm from './CommentForm';
 
 const ForumPage = ({ isLoggedIn, onLogout }) => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('forumMessages');
+    return saved ? JSON.parse(saved).map(m => ({
+      ...m,
+      timestamp: new Date(m.timestamp),
+      comments: m.comments.map(c => ({ ...c, timestamp: new Date(c.timestamp) }))
+    })) : [];
+  });
+
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [activeFormats, setActiveFormats] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const editorRef = useRef(null);
+
+  useEffect(() => {
+    localStorage.setItem('forumMessages', JSON.stringify(messages));
+  }, [messages]);
 
   const toggleFormat = (command) => {
     if (!editorRef.current) return;
@@ -20,26 +32,17 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
     if (command === 'blockquote') {
       const isBlockquote = document.queryCommandValue('formatBlock') === 'blockquote';
       document.execCommand('formatBlock', false, isBlockquote ? 'div' : 'blockquote');
-      const updated = [...activeFormats];
-      if (isBlockquote) {
-        setActiveFormats(updated.filter((c) => c !== command));
-      } else {
-        if (!updated.includes(command)) updated.push(command);
-        setActiveFormats(updated);
-      }
+      setActiveFormats((prev) =>
+        isBlockquote ? prev.filter(c => c !== command) : [...prev, command]
+      );
       return;
     }
 
     const isActive = document.queryCommandState(command);
     document.execCommand(command, false, null);
-    const updated = [...activeFormats];
-    if (isActive) {
-      setActiveFormats(updated.filter((c) => c !== command));
-      document.execCommand('removeFormat');
-    } else {
-      if (!updated.includes(command)) updated.push(command);
-      setActiveFormats(updated);
-    }
+    setActiveFormats((prev) =>
+      isActive ? prev.filter(c => c !== command) : [...prev, command]
+    );
   };
 
   const handlePost = (e) => {
@@ -63,28 +66,29 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
   };
 
   const handleAddComment = (postId, newComment) => {
-    setMessages(prevMessages =>
-      prevMessages.map(msg => {
-        if (msg.id === postId && newComment.trim() !== '') {
-          const updatedComments = [
-            ...msg.comments,
-            {
-              id: Date.now(),
-              user: 'Moi',
-              content: newComment,
-              timestamp: new Date()
+    setMessages(prev =>
+      prev.map(msg =>
+        msg.id === postId && newComment.trim() !== ''
+          ? {
+              ...msg,
+              comments: [
+                ...msg.comments,
+                {
+                  id: Date.now(),
+                  user: 'Moi',
+                  content: newComment,
+                  timestamp: new Date()
+                }
+              ]
             }
-          ];
-          return { ...msg, comments: updatedComments };
-        }
-        return msg;
-      })
+          : msg
+      )
     );
   };
 
   const handleToggleFavorite = (postId) => {
-    setMessages(prevMessages =>
-      prevMessages.map(msg =>
+    setMessages(prev =>
+      prev.map(msg =>
         msg.id === postId ? { ...msg, isFavorite: !msg.isFavorite } : msg
       )
     );
@@ -120,7 +124,6 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
             </>
           )}
         </div>
-
       </header>
 
       <main className="forum-main">
@@ -201,7 +204,7 @@ const ForumPage = ({ isLoggedIn, onLogout }) => {
                 {msg.comments.map((c) => (
                   <div key={c.id} className="comment">
                     <div className="meta">
-                      {c.user} – {c.timestamp.toLocaleString()}
+                      {c.user} – {new Date(c.timestamp).toLocaleString()}
                     </div>
                     <div>{c.content}</div>
                   </div>
