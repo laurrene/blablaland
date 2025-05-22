@@ -340,3 +340,35 @@ blockquote {
 .topic-form button:hover {
   background-color: #45a049;
 }
+
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-right: 20px;
+}
+
+.search-row {
+  display: flex;
+  gap: 8px;
+}
+
+.search-bar input[type="text"],
+.search-bar input[type="date"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-bar-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.date-range-label {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 2px;
+}

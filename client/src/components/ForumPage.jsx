@@ -4,37 +4,36 @@ import '../styles/NavigationBar.css';
 import '../styles/ForumPage.css';
 import CommentForm from './CommentForm';
 
-
 const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
-
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [activeFormats, setActiveFormats] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchAuthor, setSearchAuthor] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const editorRef = useRef(null);
 
   useEffect(() => {
     localStorage.setItem('forumMessages', JSON.stringify(messages));
-  }, [messages]);;
+  }, [messages]);
 
   const toggleFormat = (command) => {
     if (!editorRef.current) return;
     editorRef.current.focus();
-
     if (command === 'blockquote') {
       const isBlockquote = document.queryCommandValue('formatBlock') === 'blockquote';
       document.execCommand('formatBlock', false, isBlockquote ? 'div' : 'blockquote');
       setActiveFormats((prev) =>
-        isBlockquote ? prev.filter(c => c !== command) : [...prev, command]
+        isBlockquote ? prev.filter((c) => c !== command) : [...prev, command]
       );
       return;
     }
-
     const isActive = document.queryCommandState(command);
     document.execCommand(command, false, null);
     setActiveFormats((prev) =>
-      isActive ? prev.filter(c => c !== command) : [...prev, command]
+      isActive ? prev.filter((c) => c !== command) : [...prev, command]
     );
   };
 
@@ -48,7 +47,7 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
         content: message,
         timestamp: new Date(),
         comments: [],
-        isFavorite: false
+        isFavorite: false,
       };
       setMessages([newPost, ...messages]);
       setTitle('');
@@ -59,8 +58,8 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
   };
 
   const handleAddComment = (postId, newComment) => {
-    setMessages(prev =>
-      prev.map(msg =>
+    setMessages((prev) =>
+      prev.map((msg) =>
         msg.id === postId && newComment.trim() !== ''
           ? {
               ...msg,
@@ -70,9 +69,9 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
                   id: Date.now(),
                   user: 'Moi',
                   content: newComment,
-                  timestamp: new Date()
-                }
-              ]
+                  timestamp: new Date(),
+                },
+              ],
             }
           : msg
       )
@@ -80,16 +79,20 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
   };
 
   const handleToggleFavorite = (postId) => {
-    setMessages(prev =>
-      prev.map(msg =>
+    setMessages((prev) =>
+      prev.map((msg) =>
         msg.id === postId ? { ...msg, isFavorite: !msg.isFavorite } : msg
       )
     );
   };
 
-  const filteredMessages = messages.filter(msg =>
-    msg.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMessages = messages.filter((msg) => {
+    const inTitle = msg.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const byAuthor = msg.user.toLowerCase().includes(searchAuthor.toLowerCase());
+    const inDateRange = (!startDate || new Date(msg.timestamp) >= new Date(startDate)) &&
+                        (!endDate || new Date(msg.timestamp) <= new Date(endDate));
+    return inTitle && byAuthor && inDateRange;
+  });
 
   return (
     <div>
@@ -97,12 +100,41 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
         <Link to="/forum" className="logo">Blablaland</Link>
         <div className="nav-links">
           <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Rechercher par titre..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <div className="search-bar-title">Recherche</div>
+            <div className="search-row">
+              <input
+                type="text"
+                placeholder="Titre..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Auteur..."
+                value={searchAuthor}
+                onChange={(e) => setSearchAuthor(e.target.value)}
+              />
+            </div>
+            <div className="search-row">
+              <div>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  placeholder="Date de début"
+                />
+                <div className="date-range-label">(inclus)</div>
+              </div>
+              <div>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  placeholder="Date de fin"
+                />
+                <div className="date-range-label">(exclus)</div>
+              </div>
+            </div>
           </div>
 
           {!isLoggedIn ? (
@@ -121,7 +153,6 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
 
       <main className="forum-main">
         <h3>Blabla partout, silence nulle part.</h3>
-
         {isLoggedIn && (
           <button className="create-post-btn" onClick={() => setShowModal(true)}>
             Créer un post
@@ -184,7 +215,6 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
               >
                 {msg.isFavorite ? '★' : '☆'}
               </button>
-
               <div className="main-message">
                 <div className="meta">
                   {msg.user} – {msg.timestamp.toLocaleString()}
@@ -192,7 +222,6 @@ const ForumPage = ({ isLoggedIn, onLogout, messages, setMessages }) => {
                 <h3>{msg.title}</h3>
                 <div dangerouslySetInnerHTML={{ __html: msg.content }} />
               </div>
-
               <div className="comments-thread">
                 {msg.comments.map((c) => (
                   <div key={c.id} className="comment">
