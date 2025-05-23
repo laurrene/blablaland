@@ -17,8 +17,27 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const editorRef = useRef(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Fonction pour vérifier si l'utilisateur est admin
+  const checkIsAdmin = async (email) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/users/${email}`);
+      if (!res.ok) return false;
+      const user = await res.json();
+      return user.statut === 'admin';
+    } catch (err) {
+      console.error("Erreur lors de la vérification du statut admin:", err);
+      return false;
+    }
+  };
 
   useEffect(() => {
+    // Vérifier le statut admin au chargement
+    if (userEmail) {
+      checkIsAdmin(userEmail).then(admin => setIsAdmin(admin));
+    }
+
     // Récupération des topics depuis le serveur
     const fetchTopics = async () => {
       try {
@@ -32,8 +51,9 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     };
 
     fetchTopics();
-  }, []);
+  }, [userEmail]);
 
+  // Fonctions pour la gestion des formats de texte
   const toggleFormat = (command) => {
     if (!editorRef.current) return;
     editorRef.current.focus();
@@ -52,6 +72,7 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     );
   };
 
+  // Fonctions pour la gestion des topics
   const handlePost = async (e) => {
     e.preventDefault();
     if (title.trim() !== '' && message.trim() !== '') {
@@ -86,59 +107,94 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   };
 
   const handleAddComment = async (postId, newComment) => {
-  if (newComment.trim() === '') return;
+    if (newComment.trim() === '') return;
 
-  try {
-    const response = await fetch(`http://localhost:3000/api/topics/${postId}/comments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user: userEmail || 'Anonyme',
-        content: newComment
-      }),
-    });
+    try {
+      const response = await fetch(`http://localhost:3000/api/topics/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user: userEmail || 'Anonyme',
+          content: newComment
+        }),
+      });
 
-    if (!response.ok) throw new Error('Erreur serveur');
+      if (!response.ok) throw new Error('Erreur serveur');
 
-    const addedComment = await response.json();
+      const addedComment = await response.json();
+      
+      setMessages(prev =>
+        prev.map(msg =>
+          msg._id === postId
+            ? { ...msg, comments: [...msg.comments, addedComment] }
+            : msg
+        )
+      );
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du commentaire :", error);
+    }
+  };
+
+  const handleDeleteComment = async (topicId, commentId) => {
+    try {
+      let endpoint = `http://localhost:3000/api/topics/${topicId}/comments/${commentId}`;
+      let method = 'DELETE';
+      let body = { userEmail };
+
+      if (isAdmin) {
+        endpoint = `http://localhost:3000/api/admin/topics/${topicId}/comments/${commentId}`;
+      }
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) throw new Error('Erreur serveur');
+
+      setMessages(prev =>
+        prev.map(msg =>
+          msg._id === topicId
+            ? {
+                ...msg,
+                comments: msg.comments.filter(c => c.id !== commentId)
+              }
+            : msg
+        )
+      );
+    } catch (error) {
+      console.error("Erreur lors de la suppression du commentaire :", error);
+      alert(error.message);
+    }
+  };
+
+  const handleDeleteTopic = async (topicId) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce topic ?")) return;
     
-    setMessages(prev =>
-      prev.map(msg =>
-        msg._id === postId
-          ? { ...msg, comments: [...msg.comments, addedComment] }
-          : msg
-      )
-    );
-  } catch (error) {
-    console.error("Erreur lors de l'ajout du commentaire :", error);
-  }
-};
+    try {
+      let endpoint = `http://localhost:3000/api/topics/${topicId}`;
+      let method = 'DELETE';
+      let body = { userEmail };
 
-const handleDeleteComment = async (topicId, commentId) => {
-  try {
-    const response = await fetch(`http://localhost:3000/api/topics/${topicId}/comments/${commentId}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userEmail }),
-    });
+      if (isAdmin) {
+        endpoint = `http://localhost:3000/api/admin/topics/${topicId}`;
+      }
 
-    if (!response.ok) throw new Error('Erreur serveur');
+      const response = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
 
-    setMessages(prev =>
-      prev.map(msg =>
-        msg._id === topicId
-          ? {
-              ...msg,
-              comments: msg.comments.filter(c => c.id !== commentId)
-            }
-          : msg
-      )
-    );
-  } catch (error) {
-    console.error("Erreur lors de la suppression du commentaire :", error);
-  }
-};
-  
+      if (!response.ok) throw new Error('Erreur serveur');
+
+      setMessages(prev => prev.filter(msg => msg._id !== topicId));
+    } catch (error) {
+      console.error("Erreur lors de la suppression du topic :", error);
+      alert(error.message);
+    }
+  };
 
   const handleToggleFavorite = (postId) => {
     setMessages((prev) =>
@@ -156,6 +212,7 @@ const handleDeleteComment = async (topicId, commentId) => {
       (!endDate || new Date(msg.timestamp) <= new Date(endDate));
     return inTitle && byAuthor && inDateRange;
   });
+
 
   return (
     <div>
@@ -248,13 +305,24 @@ const handleDeleteComment = async (topicId, commentId) => {
         <div className="messages">
           {filteredMessages.map((msg) => (
             <div key={msg._id} className="message-thread">
-              <button
-                className={`favorite-btn ${msg.isFavorite ? 'favorited' : ''}`}
-                onClick={() => handleToggleFavorite(msg._id)}
-                aria-label={msg.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-              >
-                {msg.isFavorite ? '★' : '☆'}
-              </button>
+              <div className="topic-actions">
+                <button
+                  className={`favorite-btn ${msg.isFavorite ? 'favorited' : ''}`}
+                  onClick={() => handleToggleFavorite(msg._id)}
+                  aria-label={msg.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+                >
+                  {msg.isFavorite ? '★' : '☆'}
+                </button>
+                {(userEmail === msg.user || isAdmin) && (
+                  <button 
+                    className="delete-topic-btn"
+                    onClick={() => handleDeleteTopic(msg._id)}
+                    aria-label="Supprimer le topic"
+                  >
+                    Supprimer
+                  </button>
+                )}
+              </div>
               <div className="main-message">
               <div className="meta">
                   <UserLink email={msg.user}>{msg.user}</UserLink> – {new Date(msg.timestamp).toLocaleString()}
@@ -269,6 +337,7 @@ const handleDeleteComment = async (topicId, commentId) => {
                     comment={c}
                     onDelete={(commentId) => handleDeleteComment(msg._id, commentId)}
                     currentUser={userEmail}
+                    isAdmin={isAdmin}
                   />
                 ))}
                 {isLoggedIn && <CommentForm onSubmit={(newComment) => handleAddComment(msg._id, newComment)} />}

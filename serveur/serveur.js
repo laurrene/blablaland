@@ -241,3 +241,58 @@ app.delete('/api/topics/:topicId/comments/:commentId', async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
+
+// Vérification des droits admin (middleware)
+const checkAdmin = async (req, res, next) => {
+  try {
+    const { userEmail } = req.body;
+    const user = await usersCollection.findOne({ email: userEmail });
+    
+    if (!user || user.statut !== 'admin') {
+      return res.status(403).json({ error: 'Accès refusé - droits admin requis' });
+    }
+    
+    next();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+// Suppression de topic par admin
+app.delete('/api/admin/topics/:id', checkAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.collection('topics').deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Topic non trouvé' });
+    }
+
+    res.status(200).json({ message: 'Topic supprimé avec succès' });
+  } catch (err) {
+    console.error('Erreur serveur (DELETE /api/admin/topics/:id) :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Suppression de commentaire par admin
+app.delete('/api/admin/topics/:topicId/comments/:commentId', checkAdmin, async (req, res) => {
+  try {
+    const { topicId, commentId } = req.params;
+
+    const result = await db.collection('topics').updateOne(
+      { _id: new ObjectId(topicId) },
+      { $pull: { comments: { id: commentId } } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ error: 'Commentaire non trouvé' });
+    }
+
+    res.status(200).json({ message: 'Commentaire supprimé avec succès' });
+  } catch (err) {
+    console.error('Erreur serveur (DELETE /api/admin/topics/:topicId/comments/:commentId) :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
