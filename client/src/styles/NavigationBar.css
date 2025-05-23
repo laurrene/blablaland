@@ -1,54 +1,84 @@
-/* navbar.css */
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 40px;
-    background-color: #ffffff;
-    color: #1f2937;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-  }
-  
-  .logo {
-    font-size: 22px;
-    font-weight: 600;
-    color: #1f2937;
-    letter-spacing: 1px;
-  }
-  
-  .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-  }
-  
-  .nav-links a {
-    color: #1f2937;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    transition: color 0.3s ease;
-  }
-  
-  .nav-links a:hover {
-    color: #4f46e5;
-  }
-  
-  .search-bar {
-    background-color: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    padding: 4px 10px;
-  }
-  
-  .search-bar input {
-    border: none;
-    outline: none;
-    background: transparent;
-    padding: 6px;
-    font-size: 14px;
-    width: 500px; 
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #b92b27;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: #b92b27;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+}
+
+.logout-btn:hover {
+  color: #b92b27;
+}
+
+.search-bar {
+  background-color: #f8f9fa;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  margin-right: 1.5rem;
+}
+
+.search-bar-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.search-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.search-row:last-child {
+  margin-bottom: 0;
+}
+
+.search-bar input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.date-range-label {
+  font-size: 0.7rem;
+  color: #666;
+  margin-top: 0.2rem;
+  text-align: center;
+}

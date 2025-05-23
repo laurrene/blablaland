@@ -1,10 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import '../styles/NavigationBar.css';
+import React, { useState, useEffect } from 'react';
 import '../styles/ForumPage.css';
-import CommentForm from './CommentForm';
-import Comment from './Comment';
-import UserLink from './UserLink';
+import NavigationBar from './NavigationBar';
+import PostModal from './PostModal';
+import MessageThread from './MessageThread';
 
 const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   const [messages, setMessages] = useState([]);
@@ -16,10 +14,8 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   const [searchAuthor, setSearchAuthor] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const editorRef = useRef(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Fonction pour vérifier si l'utilisateur est admin
   const checkIsAdmin = async (email) => {
     try {
       const res = await fetch(`http://localhost:3000/api/users/${email}`);
@@ -33,7 +29,6 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   };
 
   useEffect(() => {
-    //Verifie si l'utilisateur est un admin ou pas lors du chargement de la page
     if (userEmail) {
       checkIsAdmin(userEmail).then(admin => setIsAdmin(admin));
     }
@@ -52,25 +47,6 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     fetchTopics();
   }, [userEmail]);
 
-  const toggleFormat = (command) => {
-    if (!editorRef.current) return;
-    editorRef.current.focus();
-    if (command === 'blockquote') {
-      const isBlockquote = document.queryCommandValue('formatBlock') === 'blockquote';
-      document.execCommand('formatBlock', false, isBlockquote ? 'div' : 'blockquote');
-      setActiveFormats((prev) =>
-        isBlockquote ? prev.filter((c) => c !== command) : [...prev, command]
-      );
-      return;
-    }
-    const isActive = document.queryCommandState(command);
-    document.execCommand(command, false, null);
-    setActiveFormats((prev) =>
-      isActive ? prev.filter((c) => c !== command) : [...prev, command]
-    );
-  };
-
-  // Fonctions pour la gestion des topics
   const handlePost = async (e) => {
     e.preventDefault();
     if (title.trim() !== '' && message.trim() !== '') {
@@ -195,26 +171,26 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   };
 
   const handleToggleFavorite = async (postId) => {
-  try {
-    const response = await fetch(`http://localhost:3000/api/topics/${postId}/favorite`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userEmail }),
-    });
+    try {
+      const response = await fetch(`http://localhost:3000/api/topics/${postId}/favorite`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userEmail }),
+      });
 
-    if (!response.ok) throw new Error('Erreur serveur');
+      if (!response.ok) throw new Error('Erreur serveur');
 
-    const { isFavorite } = await response.json();
-    
-    setMessages(prev =>
-      prev.map(msg =>
-        msg._id === postId ? { ...msg, isFavorite } : msg
-      )
-    );
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour des favoris :", error);
-  }
-};
+      const { isFavorite } = await response.json();
+      
+      setMessages(prev =>
+        prev.map(msg =>
+          msg._id === postId ? { ...msg, isFavorite } : msg
+        )
+      );
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour des favoris :", error);
+    }
+  };
 
   const filteredMessages = messages.filter((msg) => {
     const inTitle = msg.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -225,42 +201,20 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     return inTitle && byAuthor && inDateRange;
   });
 
-
   return (
     <div>
-      <header className="navbar">
-        <Link to="/forum" className="logo">Blablaland</Link>
-        <div className="nav-links">
-          <div className="search-bar">
-            <div className="search-bar-title">Recherche</div>
-            <div className="search-row">
-              <input type="text" placeholder="Titre..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-              <input type="text" placeholder="Auteur..." value={searchAuthor} onChange={(e) => setSearchAuthor(e.target.value)} />
-            </div>
-            <div className="search-row">
-              <div>
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                <div className="date-range-label">(inclus)</div>
-              </div>
-              <div>
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                <div className="date-range-label">(exclus)</div>
-              </div>
-            </div>
-          </div>
-          {!isLoggedIn ? (
-            <>
-              <Link to="/inscription">Inscription</Link>
-              <Link to="/connexion">Connexion</Link>
-            </>
-          ) : (
-            <>
-              <Link to="/profile">Profil</Link>
-              <button className="logout-btn" onClick={onLogout}>Déconnexion</button>
-            </>
-          )}
-        </div>
-      </header>
+      <NavigationBar 
+        isLoggedIn={isLoggedIn} 
+        onLogout={onLogout} 
+        searchTerm={searchTerm} 
+        setSearchTerm={setSearchTerm}
+        searchAuthor={searchAuthor}
+        setSearchAuthor={setSearchAuthor}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+      />
 
       <main className="forum-main">
         <h3>Blabla partout, silence nulle part.</h3>
@@ -268,95 +222,31 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
           <button className="create-post-btn" onClick={() => setShowModal(true)}>Créer un post</button>
         )}
 
-        {showModal && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <h2>Créer un nouveau sujet</h2>
-              <form onSubmit={handlePost}>
-                <div className="form-group">
-                  <label htmlFor="title">Titre</label>
-                  <input
-                    type="text"
-                    id="title"
-                    className="title-input"
-                    placeholder="Titre du sujet"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="editor-container">
-                  <div className="editor-toolbar">
-                    <button type="button" className={activeFormats.includes('bold') ? 'active' : ''} onClick={() => toggleFormat('bold')}><b>B</b></button>
-                    <button type="button" className={activeFormats.includes('italic') ? 'active' : ''} onClick={() => toggleFormat('italic')}><i>I</i></button>
-                    <button type="button" className={activeFormats.includes('strikeThrough') ? 'active' : ''} onClick={() => toggleFormat('strikeThrough')}><s>S</s></button>
-                    <button type="button" className={activeFormats.includes('blockquote') ? 'active' : ''} onClick={() => toggleFormat('blockquote')}>“”</button>
-                    <button type="button" onClick={() => document.execCommand('insertUnorderedList')}>•</button>
-                    <button type="button" onClick={() => document.execCommand('insertOrderedList')}>1.</button>
-                  </div>
-                  <div
-                    className="editor"
-                    contentEditable
-                    ref={editorRef}
-                    onInput={() => setMessage(editorRef.current.innerHTML)}
-                    placeholder="Contenu du message..."
-                    suppressContentEditableWarning={true}
-                  />
-                </div>
-
-                <div className="modal-actions">
-                  <button type="submit">Publier</button>
-                  <button type="button" onClick={() => setShowModal(false)}>Annuler</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        <PostModal 
+          showModal={showModal}
+          setShowModal={setShowModal}
+          title={title}
+          setTitle={setTitle}
+          message={message}
+          setMessage={setMessage}
+          handlePost={handlePost}
+          activeFormats={activeFormats}
+          setActiveFormats={setActiveFormats}
+        />
 
         <div className="messages">
           {filteredMessages.map((msg) => (
-            <div key={msg._id} className="message-thread">
-              <div className="topic-actions">
-                {isLoggedIn && (
-                  <button
-                    className={`favorite-btn ${msg.isFavorite ? 'favorited' : ''}`}
-                    onClick={() => handleToggleFavorite(msg._id)}
-                    aria-label={msg.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-                  >
-                    {msg.isFavorite ? '★' : '☆'}
-                  </button>
-                )}
-                {(userEmail === msg.user || isAdmin) && (
-                  <button 
-                    className="delete-topic-btn"
-                    onClick={() => handleDeleteTopic(msg._id)}
-                    aria-label="Supprimer le topic"
-                  >
-                    Supprimer
-                  </button>
-                )}
-              </div>
-              <div className="main-message">
-              <div className="meta">
-                  <UserLink email={msg.user}>{msg.user}</UserLink> – {new Date(msg.timestamp).toLocaleString()}
-                </div>
-                <h3>{msg.title}</h3>
-                <div dangerouslySetInnerHTML={{ __html: msg.content }} />
-              </div>
-              <div className="comments-thread">
-                {msg.comments.map((c) => (
-                  <Comment
-                    key={c.id}
-                    comment={c}
-                    onDelete={(commentId) => handleDeleteComment(msg._id, commentId)}
-                    currentUser={userEmail}
-                    isAdmin={isAdmin}
-                  />
-                ))}
-                {isLoggedIn && <CommentForm onSubmit={(newComment) => handleAddComment(msg._id, newComment)} />}
-              </div>
-            </div>
+            <MessageThread 
+              key={msg._id}
+              msg={msg}
+              isLoggedIn={isLoggedIn}
+              userEmail={userEmail}
+              isAdmin={isAdmin}
+              handleToggleFavorite={handleToggleFavorite}
+              handleDeleteTopic={handleDeleteTopic}
+              handleAddComment={handleAddComment}
+              handleDeleteComment={handleDeleteComment}
+            />
           ))}
         </div>
       </main>
