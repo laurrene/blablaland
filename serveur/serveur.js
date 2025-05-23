@@ -132,3 +132,67 @@ app.delete('/api/topics/:id', async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
+
+// Ajouter un commentaire à un topic
+app.post('/api/topics/:id/comments', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { user, content } = req.body;
+    
+    if (!content) return res.status(400).json({ error: "Le commentaire ne peut pas être vide" });
+
+    const newComment = {
+      id: new ObjectId().toString(),
+      user,
+      content,
+      timestamp: new Date(),
+    };
+
+    const result = await db.collection('topics').updateOne(
+      { _id: new ObjectId(id) },
+      { $push: { comments: newComment } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ error: 'Topic non trouvé' });
+    }
+
+    res.status(201).json(newComment);
+  } catch (err) {
+    console.error('Erreur serveur (POST /api/topics/:id/comments) :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Supprimer un commentaire d'un topic
+app.delete('/api/topics/:topicId/comments/:commentId', async (req, res) => {
+  try {
+    const { topicId, commentId } = req.params;
+    const { userEmail } = req.body;
+
+    const topic = await db.collection('topics').findOne({ _id: new ObjectId(topicId) });
+    if (!topic) return res.status(404).json({ error: 'Topic non trouvé' });
+
+    const comment = topic.comments.find(c => c.id === commentId);
+    if (!comment) return res.status(404).json({ error: 'Commentaire non trouvé' });
+
+    // Vérifier que l'utilisateur est bien l'auteur du commentaire
+    if (comment.user !== userEmail) {
+      return res.status(403).json({ error: 'Non autorisé - vous ne pouvez supprimer que vos propres commentaires' });
+    }
+
+    const result = await db.collection('topics').updateOne(
+      { _id: new ObjectId(topicId) },
+      { $pull: { comments: { id: commentId } } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ error: 'Commentaire non trouvé' });
+    }
+
+    res.status(200).json({ message: 'Commentaire supprimé avec succès' });
+  } catch (err) {
+    console.error('Erreur serveur (DELETE /api/topics/:topicId/comments/:commentId) :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});

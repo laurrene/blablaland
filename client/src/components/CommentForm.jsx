@@ -1,4 +1,3 @@
-// components/CommentForm.js
 import { useState } from 'react';
 
 const CommentForm = ({ onSubmit }) => {
@@ -13,7 +12,7 @@ const CommentForm = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="comment-form">
       <input
         type="text"
         placeholder="Répondre..."

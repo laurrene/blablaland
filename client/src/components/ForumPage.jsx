@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import '../styles/NavigationBar.css';
 import '../styles/ForumPage.css';
 import CommentForm from './CommentForm';
+import Comment from './Comment';
 
 const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   const [messages, setMessages] = useState([]);
@@ -83,29 +84,59 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     }
   };
 
-  const handleAddComment = (postId, newComment) => {
-    if (newComment.trim() === '') return;
+  const handleAddComment = async (postId, newComment) => {
+  if (newComment.trim() === '') return;
 
-    setMessages((prev) =>
-      prev.map((msg) =>
+  try {
+    const response = await fetch(`http://localhost:3000/api/topics/${postId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user: userEmail || 'Anonyme',
+        content: newComment
+      }),
+    });
+
+    if (!response.ok) throw new Error('Erreur serveur');
+
+    const addedComment = await response.json();
+    
+    setMessages(prev =>
+      prev.map(msg =>
         msg._id === postId
+          ? { ...msg, comments: [...msg.comments, addedComment] }
+          : msg
+      )
+    );
+  } catch (error) {
+    console.error("Erreur lors de l'ajout du commentaire :", error);
+  }
+};
+
+const handleDeleteComment = async (topicId, commentId) => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/topics/${topicId}/comments/${commentId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userEmail }),
+    });
+
+    if (!response.ok) throw new Error('Erreur serveur');
+
+    setMessages(prev =>
+      prev.map(msg =>
+        msg._id === topicId
           ? {
               ...msg,
-              comments: [
-                ...msg.comments,
-                {
-                  id: Date.now(),
-                  user: userEmail || 'Anonyme',
-                  content: newComment,
-                  timestamp: new Date(),
-                },
-              ],
+              comments: msg.comments.filter(c => c.id !== commentId)
             }
           : msg
       )
     );
-  };
-
+  } catch (error) {
+    console.error("Erreur lors de la suppression du commentaire :", error);
+  }
+};
   
 
   const handleToggleFavorite = (postId) => {
@@ -232,12 +263,12 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
               </div>
               <div className="comments-thread">
                 {msg.comments.map((c) => (
-                  <div key={c.id} className="comment">
-                    <div className="meta">
-                      {c.user} – {new Date(c.timestamp).toLocaleString()}
-                    </div>
-                    <div>{c.content}</div>
-                  </div>
+                  <Comment
+                    key={c.id}
+                    comment={c}
+                    onDelete={(commentId) => handleDeleteComment(msg._id, commentId)}
+                    currentUser={userEmail}
+                  />
                 ))}
                 {isLoggedIn && <CommentForm onSubmit={(newComment) => handleAddComment(msg._id, newComment)} />}
               </div>
