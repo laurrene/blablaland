@@ -1,10 +1,10 @@
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
-const cors = require('cors');
+//const cors = require('cors');
 
 const app = express();
-app.use(cors());
+//app.use(cors());
 app.use(express.json());
 
 const uri = 'mongodb://localhost:27017/';

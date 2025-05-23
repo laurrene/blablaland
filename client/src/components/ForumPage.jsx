@@ -5,6 +5,8 @@ import PostModal from './PostModal';
 import MessageThread from './MessageThread';
 
 const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
+
+  //Différents states du composant
   const [messages, setMessages] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
@@ -16,6 +18,7 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   const [endDate, setEndDate] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
 
+  //Fonction pour vérifier si l'utilisateur est un admin ou non
   const checkIsAdmin = async (email) => {
     try {
       const res = await fetch(`http://localhost:3000/api/users/${email}`);
@@ -27,7 +30,7 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
       return false;
     }
   };
-
+  //S'il est admin, alors on lui donne les permissions d'admins
   useEffect(() => {
     if (userEmail) {
       checkIsAdmin(userEmail).then(admin => setIsAdmin(admin));
@@ -47,11 +50,14 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     fetchTopics();
   }, [userEmail]);
 
+  //Différentes fonctions qui gèrent les différentes fonctionnalités :
+
+  //Création d'un nouveau post
   const handlePost = async (e) => {
     e.preventDefault();
     if (title.trim() !== '' && message.trim() !== '') {
       const newPost = {
-        user: userEmail || 'Anonyme',
+        user: userEmail,
         title,
         content: message,
         timestamp: new Date().toISOString(),
@@ -80,6 +86,7 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     }
   };
 
+  //Ajout d'un commentaire
   const handleAddComment = async (postId, newComment) => {
     if (newComment.trim() === '') return;
 
@@ -108,6 +115,8 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
       console.error("Erreur lors de l'ajout du commentaire :", error);
     }
   };
+
+  //Suppression d’un commentaire
 
   const handleDeleteComment = async (topicId, commentId) => {
     try {
@@ -143,6 +152,7 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     }
   };
 
+//Suppression d’un topic
   const handleDeleteTopic = async (topicId) => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce topic ?")) return;
     
@@ -170,6 +180,7 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     }
   };
 
+//Ajout et suppression d’un favori
   const handleToggleFavorite = async (postId) => {
     try {
       const response = await fetch(`http://localhost:3000/api/topics/${postId}/favorite`, {
@@ -192,6 +203,7 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     }
   };
 
+  //Filtre les topics par auteur/titre/intervalle de temps
   const filteredMessages = messages.filter((msg) => {
     const inTitle = msg.title.toLowerCase().includes(searchTerm.toLowerCase());
     const byAuthor = msg.user.toLowerCase().includes(searchAuthor.toLowerCase());
