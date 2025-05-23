@@ -59,7 +59,7 @@ input {
 
 .submit-btn {
     width: 100%;
-    background-color: #e74c3c; /* Rouge initial */
+    background-color: #e74c3c; 
     color: white;
     padding: 12px;
     border: none;
@@ -71,14 +71,14 @@ input {
 }
 
 .submit-btn:hover {
-    background-color: #c0392b; /* Rouge plus foncé au survol */
+    background-color: #c0392b; 
 }
 
 .reset-btn {
     width: 100%;
     background-color: transparent;
     color: #b92b27;
-    padding: 12px; /* Même taille que submit-btn */
+    padding: 12px; 
     border: 1px solid #b92b27;
     border-radius: 4px;
     cursor: pointer;

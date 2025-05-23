@@ -12,6 +12,7 @@ const client = new MongoClient(uri);
 
 let db, usersCollection;
 
+// Connexion à MongoDB et démarrage serveur
 async function startServer() {
   try {
     await client.connect();
@@ -29,7 +30,7 @@ async function startServer() {
 
 startServer();
 
-// Inscription : statut en attente
+// --- Inscription utilisateur ---
 app.post('/api/signup', async (req, res) => {
   try {
     const { prenom, nom, email, password } = req.body;
@@ -46,7 +47,7 @@ app.post('/api/signup', async (req, res) => {
       nom,
       email,
       password: hashedPassword,
-      statut: 'en_attente',
+      statut: 'en_attente',  // compte en attente validation
       createdAt: new Date(),
       favoriteTopics: [] 
     };
@@ -59,7 +60,7 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
-// Connexion
+// --- Connexion utilisateur ---
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -75,6 +76,7 @@ app.post('/api/login', async (req, res) => {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: "Mot de passe incorrect" });
 
+    // Retour info utilisateur sans mdp
     res.json({
       message: "Connexion réussie",
       user: {
@@ -90,7 +92,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Gestion des utilisateurs en attente
+// --- Liste utilisateurs en attente ---
 app.get('/api/users/en-attente', async (req, res) => {
   try {
     const pendingUsers = await usersCollection.find({ statut: 'en_attente' }).toArray();
@@ -101,14 +103,12 @@ app.get('/api/users/en-attente', async (req, res) => {
   }
 });
 
-// Récupérer un utilisateur par email
+// --- Récupérer utilisateur par email ---
 app.get('/api/users/:email', async (req, res) => {
   try {
     const { email } = req.params;
     const user = await usersCollection.findOne({ email }, { projection: { password: 0 } });
-    
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    
     res.json(user);
   } catch (err) {
     console.error('Erreur serveur (GET /api/users/:email) :', err);
@@ -116,7 +116,7 @@ app.get('/api/users/:email', async (req, res) => {
   }
 });
 
-// Valider un utilisateur
+// --- Valider utilisateur (changer statut en membre) ---
 app.post('/api/users/valider/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -124,11 +124,8 @@ app.post('/api/users/valider/:id', async (req, res) => {
       { _id: new ObjectId(id) },
       { $set: { statut: 'membre' } }
     );
-
-    if (result.matchedCount === 0) {
+    if (result.matchedCount === 0)
       return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    }
-
     res.json({ message: 'Utilisateur validé avec succès' });
   } catch (err) {
     console.error(err);
@@ -136,7 +133,7 @@ app.post('/api/users/valider/:id', async (req, res) => {
   }
 });
 
-// Topics
+// --- Créer un topic ---
 app.post('/api/topics', async (req, res) => {
   try {
     const { user, title, content, timestamp, comments, isFavorite } = req.body;
@@ -156,6 +153,7 @@ app.post('/api/topics', async (req, res) => {
   }
 });
 
+// --- Récupérer tous les topics ---
 app.get('/api/topics', async (req, res) => {
   try {
     const topics = await db.collection('topics').find({}).toArray();
@@ -166,15 +164,12 @@ app.get('/api/topics', async (req, res) => {
   }
 });
 
+// --- Supprimer un topic ---
 app.delete('/api/topics/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await db.collection('topics').deleteOne({ _id: new ObjectId(id) });
-
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ error: 'Topic non trouvé' });
-    }
-
+    if (result.deletedCount === 0) return res.status(404).json({ error: 'Topic non trouvé' });
     res.status(200).json({ message: 'Topic supprimé avec succès' });
   } catch (err) {
     console.error('Erreur serveur (DELETE /api/topics/:id) :', err);
@@ -182,11 +177,11 @@ app.delete('/api/topics/:id', async (req, res) => {
   }
 });
 
+// --- Ajouter un commentaire à un topic ---
 app.post('/api/topics/:id/comments', async (req, res) => {
   try {
     const { id } = req.params;
     const { user, content } = req.body;
-    
     if (!content) return res.status(400).json({ error: "Le commentaire ne peut pas être vide" });
 
     const newComment = {
@@ -200,10 +195,7 @@ app.post('/api/topics/:id/comments', async (req, res) => {
       { _id: new ObjectId(id) },
       { $push: { comments: newComment } }
     );
-
-    if (result.modifiedCount === 0) {
-      return res.status(404).json({ error: 'Topic non trouvé' });
-    }
+    if (result.modifiedCount === 0) return res.status(404).json({ error: 'Topic non trouvé' });
 
     res.status(201).json(newComment);
   } catch (err) {
@@ -212,6 +204,7 @@ app.post('/api/topics/:id/comments', async (req, res) => {
   }
 });
 
+// --- Supprimer un commentaire (seul auteur peut) ---
 app.delete('/api/topics/:topicId/comments/:commentId', async (req, res) => {
   try {
     const { topicId, commentId } = req.params;
@@ -231,10 +224,7 @@ app.delete('/api/topics/:topicId/comments/:commentId', async (req, res) => {
       { _id: new ObjectId(topicId) },
       { $pull: { comments: { id: commentId } } }
     );
-
-    if (result.modifiedCount === 0) {
-      return res.status(404).json({ error: 'Commentaire non trouvé' });
-    }
+    if (result.modifiedCount === 0) return res.status(404).json({ error: 'Commentaire non trouvé' });
 
     res.status(200).json({ message: 'Commentaire supprimé avec succès' });
   } catch (err) {
@@ -248,11 +238,9 @@ const checkAdmin = async (req, res, next) => {
   try {
     const { userEmail } = req.body;
     const user = await usersCollection.findOne({ email: userEmail });
-    
     if (!user || user.statut !== 'admin') {
       return res.status(403).json({ error: 'Accès refusé - droits admin requis' });
     }
-    
     next();
   } catch (err) {
     console.error(err);
@@ -260,16 +248,12 @@ const checkAdmin = async (req, res, next) => {
   }
 };
 
-// Suppression de topic par admin
+// --- Suppression topic par admin ---
 app.delete('/api/admin/topics/:id', checkAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const result = await db.collection('topics').deleteOne({ _id: new ObjectId(id) });
-
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ error: 'Topic non trouvé' });
-    }
-
+    if (result.deletedCount === 0) return res.status(404).json({ error: 'Topic non trouvé' });
     res.status(200).json({ message: 'Topic supprimé avec succès' });
   } catch (err) {
     console.error('Erreur serveur (DELETE /api/admin/topics/:id) :', err);
@@ -277,7 +261,7 @@ app.delete('/api/admin/topics/:id', checkAdmin, async (req, res) => {
   }
 });
 
-// Suppression de commentaire par admin
+// --- Suppression commentaire par admin ---
 app.delete('/api/admin/topics/:topicId/comments/:commentId', checkAdmin, async (req, res) => {
   try {
     const { topicId, commentId } = req.params;
@@ -286,123 +270,10 @@ app.delete('/api/admin/topics/:topicId/comments/:commentId', checkAdmin, async (
       { _id: new ObjectId(topicId) },
       { $pull: { comments: { id: commentId } } }
     );
-
-    if (result.modifiedCount === 0) {
-      return res.status(404).json({ error: 'Commentaire non trouvé' });
-    }
-
+    if (result.modifiedCount === 0) return res.status(404).json({ error: 'Commentaire non trouvé' });
     res.status(200).json({ message: 'Commentaire supprimé avec succès' });
   } catch (err) {
     console.error('Erreur serveur (DELETE /api/admin/topics/:topicId/comments/:commentId) :', err);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
-// Retourne tous les utilisateurs (sans le champ password)
-app.get('/api/users', async (req, res) => {
-  try {
-    const users = await usersCollection.find({}, { projection: { password: 0 } }).toArray();
-    res.json(users);
-  } catch (err) {
-    console.error('Erreur serveur (GET /api/users) :', err);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
-
-// Promouvoir un utilisateur en admin
-app.post('/api/users/promouvoir/:id', checkAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await usersCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { statut: 'admin' } }
-    );
-    if (result.matchedCount === 0) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    res.json({ message: 'Utilisateur promu en admin' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
-// Rétrograder un admin en membre
-app.post('/api/users/retrograder/:id', checkAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await usersCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { statut: 'membre' } }
-    );
-    if (result.matchedCount === 0) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    res.json({ message: 'Admin rétrogradé en membre' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
-
-// Ajoutez ces routes dans serveur.jsx
-
-// Toggle favorite status
-app.put('/api/topics/:id/favorite', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { userEmail } = req.body;
-
-    // Vérifiez que l'utilisateur existe
-    const user = await usersCollection.findOne({ email: userEmail });
-    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-
-    // Trouvez le topic
-    const topic = await db.collection('topics').findOne({ _id: new ObjectId(id) });
-    if (!topic) return res.status(404).json({ error: 'Topic non trouvé' });
-
-    // Inversez le statut isFavorite
-    const newFavoriteStatus = !topic.isFavorite;
-
-    // Mettez à jour le topic
-    await db.collection('topics').updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { isFavorite: newFavoriteStatus } }
-    );
-
-    // Mettez à jour la liste des favoris de l'utilisateur
-    const updateOperation = newFavoriteStatus 
-      ? { $addToSet: { favoriteTopics: id } } 
-      : { $pull: { favoriteTopics: id } };
-
-    await usersCollection.updateOne(
-      { email: userEmail },
-      updateOperation
-    );
-
-    res.json({ isFavorite: newFavoriteStatus });
-  } catch (err) {
-    console.error('Erreur serveur (PUT /api/topics/:id/favorite) :', err);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
-// Get user's favorite topics
-app.get('/api/users/:email/favorites', async (req, res) => {
-  try {
-    const { email } = req.params;
-
-    // Trouvez l'utilisateur et ses favoris
-    const user = await usersCollection.findOne({ email });
-    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-
-    // Récupérez les topics favoris
-    const favoriteTopics = user.favoriteTopics || [];
-    const topics = await db.collection('topics')
-      .find({ _id: { $in: favoriteTopics.map(id => new ObjectId(id)) } })
-      .toArray();
-
-    res.json(topics);
-  } catch (err) {
-    console.error('Erreur serveur (GET /api/users/:email/favorites) :', err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
