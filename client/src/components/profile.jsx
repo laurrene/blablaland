@@ -4,11 +4,11 @@ import '../styles/Profile.css';
 import UsersValidation from './AdminUsersValidation';
 import AllUsersManagement from './AllUsersManagement';
 
-
 function Profile({ isLoggedIn, messages, setMessages }) {
   const { email } = useParams();
   const [activeSection, setActiveSection] = useState('informations');
   const [postedTopics, setPostedTopics] = useState([]);
+  const [favoriteTopics, setFavoriteTopics] = useState([]);
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -59,6 +59,52 @@ function Profile({ isLoggedIn, messages, setMessages }) {
       console.error('Erreur lors de la suppression du topic :', error);
     }
   };
+
+  const handleRemoveFavorite = async (topicId) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/topics/${topicId}/favorite`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userEmail: profileUser.email }),
+      });
+
+      if (!response.ok) throw new Error('Erreur serveur');
+
+      // Mettre à jour la liste des favoris
+      fetchFavoriteTopics();
+      
+      // Mettre à jour l'état dans ForumPage si nécessaire
+      setMessages(prev =>
+        prev.map(msg =>
+          msg._id === topicId ? { ...msg, isFavorite: false } : msg
+        )
+      );
+    } catch (error) {
+      console.error("Erreur lors de la suppression des favoris :", error);
+    }
+  };
+
+  // Fonction pour récupérer les favoris
+  const fetchFavoriteTopics = async () => {
+    try {
+      const userEmailToFetch = isPublicProfile ? email : profileUser?.email;
+      if (!userEmailToFetch) return;
+      
+      const response = await fetch(`http://localhost:3000/api/users/${userEmailToFetch}/favorites`);
+      if (!response.ok) throw new Error('Erreur serveur');
+      const favorites = await response.json();
+      setFavoriteTopics(favorites);
+    } catch (error) {
+      console.error("Erreur lors du chargement des favoris :", error);
+    }
+  };
+
+  // Ajoutez cet useEffect pour charger les favoris
+  useEffect(() => {
+    if (profileUser) {
+      fetchFavoriteTopics();
+    }
+  }, [profileUser]);
 
   if (loading) return <div>Chargement...</div>;
   if (!profileUser) return <div>Utilisateur non trouvé</div>;
@@ -121,7 +167,29 @@ function Profile({ isLoggedIn, messages, setMessages }) {
 
         <div className={`content-section ${activeSection === 'topicsFavoris' ? 'active' : ''}`}>
           <h2>Topics favoris</h2>
-          <p>Liste des sujets que vous avez mis en favoris.</p>
+          <div className="favorites-list">
+            {favoriteTopics.length > 0 ? (
+              favoriteTopics.map(topic => (
+                <div key={topic._id} className="favorite-item">
+                  <h3>
+                    <a href={`/forum#topic-${topic._id}`} className="topic-link">
+                      {topic.title}
+                    </a>
+                  </h3>
+                  {!isPublicProfile && (
+                    <button 
+                      className="remove-favorite-btn"
+                      onClick={() => handleRemoveFavorite(topic._id)}
+                    >
+                      Supprimer des favoris
+                    </button>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p>Aucun topic favori pour le moment.</p>
+            )}
+          </div>
         </div>
 
         <div className={`content-section ${activeSection === 'messages' ? 'active' : ''}`}>
@@ -140,7 +208,6 @@ function Profile({ isLoggedIn, messages, setMessages }) {
             <p>Vous n'avez pas accès à cette section.</p>
           )}
         </div>
-        
       </div>
     </div>
   );

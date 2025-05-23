@@ -47,7 +47,8 @@ app.post('/api/signup', async (req, res) => {
       email,
       password: hashedPassword,
       statut: 'en_attente',
-      createdAt: new Date()
+      createdAt: new Date(),
+      favoriteTopics: [] 
     };
 
     await usersCollection.insertOne(newUser);
@@ -337,6 +338,71 @@ app.post('/api/users/retrograder/:id', checkAdmin, async (req, res) => {
     res.json({ message: 'Admin rétrogradé en membre' });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+
+// Ajoutez ces routes dans serveur.jsx
+
+// Toggle favorite status
+app.put('/api/topics/:id/favorite', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userEmail } = req.body;
+
+    // Vérifiez que l'utilisateur existe
+    const user = await usersCollection.findOne({ email: userEmail });
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    // Trouvez le topic
+    const topic = await db.collection('topics').findOne({ _id: new ObjectId(id) });
+    if (!topic) return res.status(404).json({ error: 'Topic non trouvé' });
+
+    // Inversez le statut isFavorite
+    const newFavoriteStatus = !topic.isFavorite;
+
+    // Mettez à jour le topic
+    await db.collection('topics').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { isFavorite: newFavoriteStatus } }
+    );
+
+    // Mettez à jour la liste des favoris de l'utilisateur
+    const updateOperation = newFavoriteStatus 
+      ? { $addToSet: { favoriteTopics: id } } 
+      : { $pull: { favoriteTopics: id } };
+
+    await usersCollection.updateOne(
+      { email: userEmail },
+      updateOperation
+    );
+
+    res.json({ isFavorite: newFavoriteStatus });
+  } catch (err) {
+    console.error('Erreur serveur (PUT /api/topics/:id/favorite) :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Get user's favorite topics
+app.get('/api/users/:email/favorites', async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    // Trouvez l'utilisateur et ses favoris
+    const user = await usersCollection.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    // Récupérez les topics favoris
+    const favoriteTopics = user.favoriteTopics || [];
+    const topics = await db.collection('topics')
+      .find({ _id: { $in: favoriteTopics.map(id => new ObjectId(id)) } })
+      .toArray();
+
+    res.json(topics);
+  } catch (err) {
+    console.error('Erreur serveur (GET /api/users/:email/favorites) :', err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });

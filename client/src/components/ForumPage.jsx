@@ -196,13 +196,27 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     }
   };
 
-  const handleToggleFavorite = (postId) => {
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg._id === postId ? { ...msg, isFavorite: !msg.isFavorite } : msg
+  const handleToggleFavorite = async (postId) => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/topics/${postId}/favorite`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userEmail }),
+    });
+
+    if (!response.ok) throw new Error('Erreur serveur');
+
+    const { isFavorite } = await response.json();
+    
+    setMessages(prev =>
+      prev.map(msg =>
+        msg._id === postId ? { ...msg, isFavorite } : msg
       )
     );
-  };
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des favoris :", error);
+  }
+};
 
   const filteredMessages = messages.filter((msg) => {
     const inTitle = msg.title.toLowerCase().includes(searchTerm.toLowerCase());
