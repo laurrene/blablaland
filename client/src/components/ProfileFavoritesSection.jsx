@@ -6,6 +6,7 @@ export default function ProfileFavoritesSection({
   profileUser,
   fetchFavoriteTopics
 }) {
+  // Fonction pour retirer un topic des favoris
   const handleRemoveFavorite = async (topicId) => {
     try {
       const response = await fetch(`http://localhost:3000/api/topics/${topicId}/favorite`, {
@@ -15,19 +16,21 @@ export default function ProfileFavoritesSection({
       });
 
       if (!response.ok) throw new Error('Erreur serveur');
-      fetchFavoriteTopics();
+      fetchFavoriteTopics(); // Actualiser la liste après suppression
     } catch (error) {
       console.error("Erreur lors de la suppression des favoris :", error);
     }
   };
 
   return (
+    // Section affichée si activeSection vaut 'topicsFavoris'
     <div 
       className={`content-section ${activeSection === 'topicsFavoris' ? 'active' : ''}`}
-      ref={topicsFavorisRef}
+      ref={topicsFavorisRef} // Réf pour scroll
     >
       <h2>Topics favoris</h2>
       <div className="favorites-list">
+        {/* Liste des topics favoris */}
         {favoriteTopics.length > 0 ? (
           favoriteTopics.map(topic => (
             <div key={topic._id} className="favorite-item">
@@ -36,6 +39,7 @@ export default function ProfileFavoritesSection({
                   {topic.title}
                 </a>
               </h3>
+              {/* Bouton pour retirer des favoris si profil privé */}
               {!isPublicProfile && (
                 <button 
                   className="remove-favorite-btn"
@@ -47,7 +51,7 @@ export default function ProfileFavoritesSection({
             </div>
           ))
         ) : (
-          <p>Aucun topic favori pour le moment.</p>
+          <p>Aucun topic favori pour le moment.</p> // Message si aucun favori
         )}
       </div>
     </div>

@@ -1,11 +1,13 @@
 import React, { useRef, useState } from 'react';
 import '../styles/TopicForm.css';
 
+// Formulaire de création/modification de sujet avec éditeur riche
 const TopicForm = ({ onSubmit, onCancel }) => {
   const [title, setTitle] = useState('');
   const [activeFormats, setActiveFormats] = useState([]);
   const editorRef = useRef(null);
 
+  // Applique ou retire un format (gras, italique, etc.)
   const toggleFormat = (command) => {
     if (!editorRef.current) return;
     editorRef.current.focus();
@@ -26,10 +28,10 @@ const TopicForm = ({ onSubmit, onCancel }) => {
     );
   };
 
+  // Gère la validation du formulaire
   const handleSubmit = (e) => {
     e.preventDefault();
     const content = editorRef.current.innerHTML;
-
     if (title.trim() && content.trim()) {
       onSubmit({ title, content });
       setTitle('');

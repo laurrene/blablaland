@@ -5,6 +5,7 @@ import '../styles/Topic.css'
 const Topic = ({ msg, onComment, onToggleFavorite, isLoggedIn }) => {
   const [isFavorite, setIsFavorite] = useState(msg.isFavorite || false);
 
+  // Gestion du clic sur le bouton favori
   const handleFavoriteClick = () => {
     const newFavoriteStatus = !isFavorite;
     setIsFavorite(newFavoriteStatus);
@@ -15,9 +16,11 @@ const Topic = ({ msg, onComment, onToggleFavorite, isLoggedIn }) => {
 
   return (
     <div className="message-thread">
+      {/* Message principal */}
       <div className="main-message">
         <div className="topic-header">
           <h3 className="topic-title">{msg.title}</h3>
+          {/* Bouton favori visible si connecté */}
           {isLoggedIn && (
             <button 
               className="favorite-button" 
@@ -34,6 +37,7 @@ const Topic = ({ msg, onComment, onToggleFavorite, isLoggedIn }) => {
         <div>{msg.content}</div>
       </div>
 
+      {/* Fil des commentaires */}
       <div className="comments-thread">
         {msg.comments.map((comment) => (
           <div key={comment.id} className="comment">
@@ -44,6 +48,7 @@ const Topic = ({ msg, onComment, onToggleFavorite, isLoggedIn }) => {
           </div>
         ))}
 
+        {/* Formulaire ajout commentaire */}
         <CommentForm onSubmit={(text) => onComment(msg.id, text)} />
       </div>
     </div>
