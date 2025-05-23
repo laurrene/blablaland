@@ -152,7 +152,7 @@ const SparkleCursor = () => {
       document.removeEventListener("mousemove", mouse);
       window.removeEventListener("resize", set_width);
       style.remove();
-      // Nettoyage DOM
+      
       tiny.forEach(el => document.body.removeChild(el));
       star.forEach(el => document.body.removeChild(el));
     };

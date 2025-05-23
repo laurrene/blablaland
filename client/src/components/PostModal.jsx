@@ -3,9 +3,11 @@ import React, { useRef, useState } from 'react';
 const PostModal = ({ showModal, setShowModal, title, setTitle, message, setMessage, handlePost, activeFormats, setActiveFormats }) => {
   const editorRef = useRef(null);
 
+  // Fonction pour activer/désactiver un format de texte
   const toggleFormat = (command) => {
     if (!editorRef.current) return;
     editorRef.current.focus();
+    //Gestion des citations
     if (command === 'blockquote') {
       const isBlockquote = document.queryCommandValue('formatBlock') === 'blockquote';
       document.execCommand('formatBlock', false, isBlockquote ? 'div' : 'blockquote');
@@ -14,6 +16,7 @@ const PostModal = ({ showModal, setShowModal, title, setTitle, message, setMessa
       );
       return;
     }
+    //Gestion des autres
     const isActive = document.queryCommandState(command);
     document.execCommand(command, false, null);
     setActiveFormats((prev) =>
@@ -23,6 +26,7 @@ const PostModal = ({ showModal, setShowModal, title, setTitle, message, setMessa
 
   if (!showModal) return null;
 
+  //Affichage des boutons
   return (
     <div className="modal-overlay">
       <div className="modal">
@@ -61,8 +65,9 @@ const PostModal = ({ showModal, setShowModal, title, setTitle, message, setMessa
           </div>
 
           <div className="modal-actions">
+            
             <button type="submit">Publier</button>
-            <button type="button" onClick={() => setShowModal(false)}>Annuler</button>
+            <button type="button" onClick={() => setShowModal(false)}>Annuler</button> 
           </div>
         </form>
       </div>

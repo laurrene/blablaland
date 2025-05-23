@@ -247,9 +247,9 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
         />
 
         <div className="messages">
-          {filteredMessages.map((msg) => (
+          {filteredMessages.map((msg) => ( // Affiche chaque topic avec ses fonctionnalités (favoris/commentaires/suppression...)
             <MessageThread 
-              key={msg._id}
+              key={msg._id} 
               msg={msg}
               isLoggedIn={isLoggedIn}
               userEmail={userEmail}

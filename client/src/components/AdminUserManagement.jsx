@@ -1,4 +1,6 @@
 export default function AdminUserManagement({ user, onUserUpdated }) {
+
+    // Fonction pour promouvoir un utilisateur au rang d'admin
   const handlePromotion = async () => {
     try {
       const res = await fetch(`http://localhost:3000/api/users/promouvoir/${user._id}`, {
@@ -15,6 +17,7 @@ export default function AdminUserManagement({ user, onUserUpdated }) {
     }
   };
 
+  // Fonction pour rétrograder un admin au rang de membre
   const handleRetrogradation = async () => {
     try {
       const res = await fetch(`http://localhost:3000/api/users/retrograder/${user._id}`, {
@@ -31,6 +34,7 @@ export default function AdminUserManagement({ user, onUserUpdated }) {
     }
   };
 
+  //Differents boutons pour differents fonctionnalités
   return (
     <div>
       <h3>Gérer les droits de l'utilisateur</h3>
