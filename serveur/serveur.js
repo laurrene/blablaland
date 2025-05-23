@@ -296,3 +296,47 @@ app.delete('/api/admin/topics/:topicId/comments/:commentId', checkAdmin, async (
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
+
+// Retourne tous les utilisateurs (sans le champ password)
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await usersCollection.find({}, { projection: { password: 0 } }).toArray();
+    res.json(users);
+  } catch (err) {
+    console.error('Erreur serveur (GET /api/users) :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+
+// Promouvoir un utilisateur en admin
+app.post('/api/users/promouvoir/:id', checkAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await usersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { statut: 'admin' } }
+    );
+    if (result.matchedCount === 0) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    res.json({ message: 'Utilisateur promu en admin' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Rétrograder un admin en membre
+app.post('/api/users/retrograder/:id', checkAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await usersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { statut: 'membre' } }
+    );
+    if (result.matchedCount === 0) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    res.json({ message: 'Admin rétrogradé en membre' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
