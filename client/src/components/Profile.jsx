@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/Profile.css';
 import UsersValidation from './AdminUsersValidation';
 import AllUsersManagement from './AllUsersManagement';
 
 function Profile({ isLoggedIn, messages, setMessages }) {
   const { email } = useParams();
+  const navigate = useNavigate();
+
   const [activeSection, setActiveSection] = useState('informations');
   const [postedTopics, setPostedTopics] = useState([]);
   const [favoriteTopics, setFavoriteTopics] = useState([]);
@@ -42,7 +44,7 @@ function Profile({ isLoggedIn, messages, setMessages }) {
 
         setProfileUser(userData);
 
-        // Filtrer topics ici une fois les données utilisateur chargées
+        // Filtrer les topics postés par cet utilisateur
         const userTopics = messages.filter(topic => topic.user === userData.email);
         setPostedTopics(userTopics);
 
@@ -63,7 +65,7 @@ function Profile({ isLoggedIn, messages, setMessages }) {
   const handleSectionClick = (section, ref) => {
     setActiveSection(section);
     if (ref) {
-      setTimeout(() => scrollToSection(ref), 100); // Petit délai pour s'assurer que la section est rendue
+      setTimeout(() => scrollToSection(ref), 100);
     }
   };
 
@@ -88,10 +90,8 @@ function Profile({ isLoggedIn, messages, setMessages }) {
 
       if (!response.ok) throw new Error('Erreur serveur');
 
-      // Mettre à jour la liste des favoris
       fetchFavoriteTopics();
       
-      // Mettre à jour l'état dans ForumPage si nécessaire
       setMessages(prev =>
         prev.map(msg =>
           msg._id === topicId ? { ...msg, isFavorite: false } : msg
@@ -106,7 +106,7 @@ function Profile({ isLoggedIn, messages, setMessages }) {
     try {
       const userEmailToFetch = isPublicProfile ? email : profileUser?.email;
       if (!userEmailToFetch) return;
-      
+
       const response = await fetch(`http://localhost:3000/api/users/${userEmailToFetch}/favorites`);
       if (!response.ok) throw new Error('Erreur serveur');
       const favorites = await response.json();
@@ -128,10 +128,18 @@ function Profile({ isLoggedIn, messages, setMessages }) {
   return (
     <div style={{ display: 'flex' }}>
       <div className="sidebar">
-        <h2>Mon Espace</h2>
+        <h2
+          onClick={() => navigate('/forum')}
+          style={{ cursor: 'pointer', color: '#4f46e5' }}
+          title="Aller au forum"
+        >
+          Blablaland
+        </h2>
+
         <button onClick={() => handleSectionClick('informations', informationsRef)}>Informations personnelles</button>
         <button onClick={() => handleSectionClick('topicsPostes', topicsPostesRef)}>Topics postés</button>
         <button onClick={() => handleSectionClick('topicsFavoris', topicsFavorisRef)}>Topics favoris</button>
+        
         {userInfo.statut === 'admin' && (
           <button onClick={() => handleSectionClick('pendingUsers', pendingUsersRef)}>Utilisateurs en attente</button>
         )}
@@ -144,17 +152,18 @@ function Profile({ isLoggedIn, messages, setMessages }) {
         <h1>{isPublicProfile ? `Profil de ${profileUser.prenom} ${profileUser.nom}` : 'Bienvenue sur votre page de profil'}</h1>
 
         <div 
-            className={`content-section ${activeSection === 'informations' ? 'active' : ''}`}
-            ref={informationsRef}
+          className={`content-section ${activeSection === 'informations' ? 'active' : ''}`}
+          ref={informationsRef}
         >
-            <h2>Informations personnelles</h2>
-            <div className="info-grid">
+          <h2>Informations personnelles</h2>
+          <div className="info-grid">
             <p><strong>Prénom:</strong> {profileUser.prenom}</p>
             <p><strong>Nom:</strong> {profileUser.nom}</p>
             <p><strong>Email:</strong> {profileUser.email}</p>
             <p><strong>Statut:</strong> {profileUser.statut}</p>
-            </div>
+          </div>
         </div>
+
         <div 
           className={`content-section ${activeSection === 'topicsPostes' ? 'active' : ''}`}
           ref={topicsPostesRef}
