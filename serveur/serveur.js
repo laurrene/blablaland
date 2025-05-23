@@ -1,10 +1,10 @@
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
-//const cors = require('cors');
+const cors = require('cors');
 
 const app = express();
-//app.use(cors());
+app.use(cors());
 app.use(express.json());
 
 const uri = 'mongodb://localhost:27017/';
@@ -90,7 +90,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// --- ROUTE DÉPLACÉE ICI ---
+// Gestion des utilisateurs en attente
 app.get('/api/users/en-attente', async (req, res) => {
   try {
     const pendingUsers = await usersCollection.find({ statut: 'en_attente' }).toArray();
@@ -243,7 +243,7 @@ app.delete('/api/topics/:topicId/comments/:commentId', async (req, res) => {
   }
 });
 
-// Vérification des droits admin (middleware)
+// Vérification des droits admin
 const checkAdmin = async (req, res, next) => {
   try {
     const { userEmail } = req.body;
