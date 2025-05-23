@@ -76,6 +76,17 @@ function App() {
             />
           } 
         />
+        <Route 
+          path="/profile/:email" 
+          element={
+            <Profile 
+              isLoggedIn={isLoggedIn}
+              messages={messages} 
+              setMessages={setMessages}
+              userEmail={userEmail}
+            />
+          } 
+        />
         <Route path="/inscription" element={<SignUp />} />
         <Route 
           path="/connexion" 

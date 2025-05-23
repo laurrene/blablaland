@@ -1,25 +1,53 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import '../styles/Profile.css';
-
 function Profile({ isLoggedIn, messages, setMessages }) {
+  const { email } = useParams();
   const [activeSection, setActiveSection] = useState('informations');
   const [postedTopics, setPostedTopics] = useState([]);
+  const [profileUser, setProfileUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const userInfo = {
-    prenom: localStorage.getItem('firstName') || 'Prénom inconnu',
-    nom: localStorage.getItem('lastName') || 'Nom inconnu',
-    email: localStorage.getItem('userEmail') || 'Email inconnu',
-    statut: localStorage.getItem('userStatut') || 'Membre' // ajout du statut
-  };
-
-  useEffect(() => {
-    const userTopics = messages.filter(topic => topic.user === userInfo.email);
-    setPostedTopics(userTopics);
-  }, [messages, userInfo.email]);
-
+  // Si email est présent dans les params, c'est une vue publique
+  const isPublicProfile = !!email;
   const showSection = (sectionId) => {
     setActiveSection(sectionId);
   };
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        let userData;
+        
+        if (isPublicProfile) {
+          // Récupérer les infos de l'utilisateur cible
+          const response = await fetch(`http://localhost:3000/api/users/${email}`);
+          if (!response.ok) throw new Error('Utilisateur non trouvé');
+          userData = await response.json();
+        } else {
+          // Infos de l'utilisateur connecté
+          userData = {
+            prenom: localStorage.getItem('firstName') || 'Prénom inconnu',
+            nom: localStorage.getItem('lastName') || 'Nom inconnu',
+            email: localStorage.getItem('userEmail') || 'Email inconnu',
+            statut: localStorage.getItem('userStatut') || 'Membre'
+          };
+        }
+        
+        setProfileUser(userData);
+        
+        // Filtrer les topics de l'utilisateur
+        const userTopics = messages.filter(topic => topic.user === userData.email);
+        setPostedTopics(userTopics);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erreur:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [email, messages, isPublicProfile]);
 
   const handleDeleteTopic = async (topicId) => {
     try {
@@ -36,26 +64,31 @@ function Profile({ isLoggedIn, messages, setMessages }) {
     }
   };
 
+  if (loading) return <div>Chargement...</div>;
+  if (!profileUser) return <div>Utilisateur non trouvé</div>;
+
   return (
     <div style={{ display: 'flex' }}>
-      <div className="sidebar">
-        <h2>Mon Espace</h2>
-        <button onClick={() => showSection('informations')}>Informations personnelles</button>
-        <button onClick={() => showSection('profil')}>Page de profil (publique)</button>
-        <button onClick={() => showSection('topicsPostes')}>Topics postés</button>
-        <button onClick={() => showSection('topicsFavoris')}>Topics favoris</button>
-        <button onClick={() => showSection('messages')}>Messages envoyés</button>
-      </div>
+      {!isPublicProfile && (
+        <div className="sidebar">
+          <h2>Mon Espace</h2>
+          <button onClick={() => showSection('informations')}>Informations personnelles</button>
+          <button onClick={() => showSection('profil')}>Page de profil (publique)</button>
+          <button onClick={() => showSection('topicsPostes')}>Topics postés</button>
+          <button onClick={() => showSection('topicsFavoris')}>Topics favoris</button>
+          <button onClick={() => showSection('messages')}>Messages envoyés</button>
+        </div>
+      )}
 
       <div className="main-content">
-        <h1>Bienvenue sur votre page de profil</h1>
+        <h1>{isPublicProfile ? `Profil de ${profileUser.prenom} ${profileUser.nom}` : 'Bienvenue sur votre page de profil'}</h1>
 
         <div className={`content-section ${activeSection === 'informations' ? 'active' : ''}`}>
           <h2>Informations personnelles</h2>
-          <p>Prénom : {userInfo.prenom}</p>
-          <p>Nom : {userInfo.nom}</p>
-          <p>Email : {userInfo.email}</p>
-          <p>Statut : {userInfo.statut}</p>
+            <p>Prénom : {profileUser.prenom}</p>
+            <p>Nom : {profileUser.nom}</p>
+            <p>Email : {profileUser.email}</p>
+            <p>Statut : {profileUser.statut}</p>
         </div>
 
         <div className={`content-section ${activeSection === 'profil' ? 'active' : ''}`}>

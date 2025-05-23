@@ -4,6 +4,7 @@ import '../styles/NavigationBar.css';
 import '../styles/ForumPage.css';
 import CommentForm from './CommentForm';
 import Comment from './Comment';
+import UserLink from './UserLink';
 
 const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   const [messages, setMessages] = useState([]);
@@ -255,8 +256,8 @@ const handleDeleteComment = async (topicId, commentId) => {
                 {msg.isFavorite ? '★' : '☆'}
               </button>
               <div className="main-message">
-                <div className="meta">
-                  {msg.user} – {new Date(msg.timestamp).toLocaleString()}
+              <div className="meta">
+                  <UserLink email={msg.user}>{msg.user}</UserLink> – {new Date(msg.timestamp).toLocaleString()}
                 </div>
                 <h3>{msg.title}</h3>
                 <div dangerouslySetInnerHTML={{ __html: msg.content }} />

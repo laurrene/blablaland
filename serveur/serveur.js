@@ -196,3 +196,18 @@ app.delete('/api/topics/:topicId/comments/:commentId', async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
+
+// Récupérer un utilisateur par email
+app.get('/api/users/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await usersCollection.findOne({ email }, { projection: { password: 0 } }); // Exclure le mot de passe
+    
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    
+    res.json(user);
+  } catch (err) {
+    console.error('Erreur serveur (GET /api/users/:email) :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});

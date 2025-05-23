@@ -1,11 +1,12 @@
 import React from 'react';
+import UserLink from './UserLink';
 
 const Comment = ({ comment, onDelete, currentUser }) => {
   return (
     <div className="comment">
       <div className="comment-header">
         <div className="meta">
-          {comment.user} – {new Date(comment.timestamp).toLocaleString()}
+          <UserLink email={comment.user}>{comment.user}</UserLink> – {new Date(comment.timestamp).toLocaleString()}
         </div>
         {currentUser === comment.user && (
           <button 
