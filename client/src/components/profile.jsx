@@ -152,7 +152,6 @@ function Profile({ isLoggedIn, messages, setMessages }) {
 
         {/* Nouvel onglet admin */}
         <div className={`content-section ${activeSection === 'pendingUsers' ? 'active' : ''}`}>
-          <h2>Utilisateurs en attente</h2>
           {userInfo.statut === 'admin' ? (
             <UsersValidation />
           ) : (

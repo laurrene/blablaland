@@ -46,7 +46,7 @@ app.post('/api/signup', async (req, res) => {
       nom,
       email,
       password: hashedPassword,
-      statut: 'en_attente', // <-- Statut par défaut à l'inscription
+      statut: 'en_attente',
       createdAt: new Date()
     };
 
@@ -58,7 +58,7 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
-// Connexion : refuser si statut en_attente
+// Connexion
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -89,8 +89,53 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// --- ROUTE DÉPLACÉE ICI ---
+app.get('/api/users/en-attente', async (req, res) => {
+  try {
+    const pendingUsers = await usersCollection.find({ statut: 'en_attente' }).toArray();
+    res.json(pendingUsers);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
 
-// Création d'un topic
+// Récupérer un utilisateur par email
+app.get('/api/users/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await usersCollection.findOne({ email }, { projection: { password: 0 } });
+    
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    
+    res.json(user);
+  } catch (err) {
+    console.error('Erreur serveur (GET /api/users/:email) :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Valider un utilisateur
+app.post('/api/users/valider/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await usersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { statut: 'membre' } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    res.json({ message: 'Utilisateur validé avec succès' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Topics
 app.post('/api/topics', async (req, res) => {
   try {
     const { user, title, content, timestamp, comments, isFavorite } = req.body;
@@ -110,7 +155,6 @@ app.post('/api/topics', async (req, res) => {
   }
 });
 
-// Récupération de tous les topics
 app.get('/api/topics', async (req, res) => {
   try {
     const topics = await db.collection('topics').find({}).toArray();
@@ -121,7 +165,6 @@ app.get('/api/topics', async (req, res) => {
   }
 });
 
-// Suppression d'un topic
 app.delete('/api/topics/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -138,7 +181,6 @@ app.delete('/api/topics/:id', async (req, res) => {
   }
 });
 
-// Ajouter un commentaire à un topic
 app.post('/api/topics/:id/comments', async (req, res) => {
   try {
     const { id } = req.params;
@@ -169,7 +211,6 @@ app.post('/api/topics/:id/comments', async (req, res) => {
   }
 });
 
-// Supprimer un commentaire d'un topic
 app.delete('/api/topics/:topicId/comments/:commentId', async (req, res) => {
   try {
     const { topicId, commentId } = req.params;
@@ -181,7 +222,6 @@ app.delete('/api/topics/:topicId/comments/:commentId', async (req, res) => {
     const comment = topic.comments.find(c => c.id === commentId);
     if (!comment) return res.status(404).json({ error: 'Commentaire non trouvé' });
 
-    // Vérifier que l'utilisateur est bien l'auteur du commentaire
     if (comment.user !== userEmail) {
       return res.status(403).json({ error: 'Non autorisé - vous ne pouvez supprimer que vos propres commentaires' });
     }
@@ -198,51 +238,6 @@ app.delete('/api/topics/:topicId/comments/:commentId', async (req, res) => {
     res.status(200).json({ message: 'Commentaire supprimé avec succès' });
   } catch (err) {
     console.error('Erreur serveur (DELETE /api/topics/:topicId/comments/:commentId) :', err);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
-// Récupérer un utilisateur par email
-app.get('/api/users/:email', async (req, res) => {
-  try {
-    const { email } = req.params;
-    const user = await usersCollection.findOne({ email }, { projection: { password: 0 } }); // Exclure le mot de passe
-    
-    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    
-    res.json(user);
-  } catch (err) {
-    console.error('Erreur serveur (GET /api/users/:email) :', err);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-//Recuperer les gens en attente
-app.get('/api/users/en-attente', async (req, res) => {
-  try {
-    const pendingUsers = await usersCollection.find({ statut: 'en_attente' }).toArray();
-    res.json(pendingUsers);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
-//Valider qqn
-app.post('/api/users/valider/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await usersCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { statut: 'membre' } }
-    );
-
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    }
-
-    res.json({ message: 'Utilisateur validé avec succès' });
-  } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
