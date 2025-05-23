@@ -33,12 +33,11 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
   };
 
   useEffect(() => {
-    // Vérifier le statut admin au chargement
+    //Verifie si l'utilisateur est un admin ou pas lors du chargement de la page
     if (userEmail) {
       checkIsAdmin(userEmail).then(admin => setIsAdmin(admin));
     }
 
-    // Récupération des topics depuis le serveur
     const fetchTopics = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/topics');
@@ -53,7 +52,6 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
     fetchTopics();
   }, [userEmail]);
 
-  // Fonctions pour la gestion des formats de texte
   const toggleFormat = (command) => {
     if (!editorRef.current) return;
     editorRef.current.focus();

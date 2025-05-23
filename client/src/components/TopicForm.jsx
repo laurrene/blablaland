@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import '../styles/TopicForm.css'; // Crée ce fichier si tu veux styliser
+import '../styles/TopicForm.css';
 
 const TopicForm = ({ onSubmit, onCancel }) => {
   const [title, setTitle] = useState('');

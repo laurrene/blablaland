@@ -4,7 +4,7 @@ export default function AdminUserManagement({ user, onUserUpdated }) {
       const res = await fetch(`http://localhost:3000/api/users/promouvoir/${user._id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userEmail: localStorage.getItem('userEmail') }) // pour checkAdmin côté serveur
+        body: JSON.stringify({ userEmail: localStorage.getItem('userEmail') })
       });
       const data = await res.json();
       alert(data.message);

@@ -14,7 +14,6 @@ function Profile({ isLoggedIn, messages, setMessages }) {
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Références pour le défilement
   const informationsRef = useRef(null);
   const topicsPostesRef = useRef(null);
   const topicsFavorisRef = useRef(null);
@@ -44,7 +43,6 @@ function Profile({ isLoggedIn, messages, setMessages }) {
 
         setProfileUser(userData);
 
-        // Filtrer les topics postés par cet utilisateur
         const userTopics = messages.filter(topic => topic.user === userData.email);
         setPostedTopics(userTopics);
 
