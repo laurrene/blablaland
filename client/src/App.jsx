@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ForumPage from './components/ForumPage';
-import Profile from './components/profile'; 
+import Profile from './components/Profile'; 
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import SparkleCursor from './components/SparkleCursor';
