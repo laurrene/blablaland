@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import '../styles/Profile.css';
 import UsersValidation from './AdminUsersValidation';
@@ -11,6 +11,13 @@ function Profile({ isLoggedIn, messages, setMessages }) {
   const [favoriteTopics, setFavoriteTopics] = useState([]);
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Références pour le défilement
+  const informationsRef = useRef(null);
+  const topicsPostesRef = useRef(null);
+  const topicsFavorisRef = useRef(null);
+  const pendingUsersRef = useRef(null);
+  const usersManagementRef = useRef(null);
 
   const isPublicProfile = !!email;
   const userInfo = {
@@ -49,6 +56,17 @@ function Profile({ isLoggedIn, messages, setMessages }) {
     fetchUserData();
   }, [email, messages, isPublicProfile]);
 
+  const scrollToSection = (ref) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleSectionClick = (section, ref) => {
+    setActiveSection(section);
+    if (ref) {
+      setTimeout(() => scrollToSection(ref), 100); // Petit délai pour s'assurer que la section est rendue
+    }
+  };
+
   const handleDeleteTopic = async (topicId) => {
     try {
       const response = await fetch(`http://localhost:3000/api/topics/${topicId}`, { method: 'DELETE' });
@@ -84,7 +102,6 @@ function Profile({ isLoggedIn, messages, setMessages }) {
     }
   };
 
-  // Fonction pour récupérer les favoris
   const fetchFavoriteTopics = async () => {
     try {
       const userEmailToFetch = isPublicProfile ? email : profileUser?.email;
@@ -99,7 +116,6 @@ function Profile({ isLoggedIn, messages, setMessages }) {
     }
   };
 
-  // Ajoutez cet useEffect pour charger les favoris
   useEffect(() => {
     if (profileUser) {
       fetchFavoriteTopics();
@@ -113,35 +129,36 @@ function Profile({ isLoggedIn, messages, setMessages }) {
     <div style={{ display: 'flex' }}>
       <div className="sidebar">
         <h2>Mon Espace</h2>
-        <button onClick={() => setActiveSection('informations')}>Informations personnelles</button>
-        <button onClick={() => setActiveSection('profil')}>Page de profil (publique)</button>
-        <button onClick={() => setActiveSection('topicsPostes')}>Topics postés</button>
-        <button onClick={() => setActiveSection('topicsFavoris')}>Topics favoris</button>
+        <button onClick={() => handleSectionClick('informations', informationsRef)}>Informations personnelles</button>
+        <button onClick={() => handleSectionClick('topicsPostes', topicsPostesRef)}>Topics postés</button>
+        <button onClick={() => handleSectionClick('topicsFavoris', topicsFavorisRef)}>Topics favoris</button>
         {userInfo.statut === 'admin' && (
-          <button onClick={() => setActiveSection('pendingUsers')}>Utilisateurs en attente</button>
+          <button onClick={() => handleSectionClick('pendingUsers', pendingUsersRef)}>Utilisateurs en attente</button>
         )}
         {userInfo.statut === 'admin' && (
-          <button onClick={() => setActiveSection('pendingUsers')}>Gestion des utilisateurs</button>
+          <button onClick={() => handleSectionClick('usersManagement', usersManagementRef)}>Gestion des utilisateurs</button>
         )}
       </div>
 
       <div className="main-content">
         <h1>{isPublicProfile ? `Profil de ${profileUser.prenom} ${profileUser.nom}` : 'Bienvenue sur votre page de profil'}</h1>
 
-        <div className={`content-section ${activeSection === 'informations' ? 'active' : ''}`}>
-          <h2>Informations personnelles</h2>
-          <p>Prénom : {profileUser.prenom}</p>
-          <p>Nom : {profileUser.nom}</p>
-          <p>Email : {profileUser.email}</p>
-          <p>Statut : {profileUser.statut}</p>
+        <div 
+            className={`content-section ${activeSection === 'informations' ? 'active' : ''}`}
+            ref={informationsRef}
+        >
+            <h2>Informations personnelles</h2>
+            <div className="info-grid">
+            <p><strong>Prénom:</strong> {profileUser.prenom}</p>
+            <p><strong>Nom:</strong> {profileUser.nom}</p>
+            <p><strong>Email:</strong> {profileUser.email}</p>
+            <p><strong>Statut:</strong> {profileUser.statut}</p>
+            </div>
         </div>
-
-        <div className={`content-section ${activeSection === 'profil' ? 'active' : ''}`}>
-          <h2>Page de profil (publique)</h2>
-          <p>Bio publique, nombre de publications, avatar, etc.</p>
-        </div>
-
-        <div className={`content-section ${activeSection === 'topicsPostes' ? 'active' : ''}`}>
+        <div 
+          className={`content-section ${activeSection === 'topicsPostes' ? 'active' : ''}`}
+          ref={topicsPostesRef}
+        >
           <h2>Topics postés</h2>
           <div className="topics-list">
             {postedTopics.length > 0 ? (
@@ -164,7 +181,10 @@ function Profile({ isLoggedIn, messages, setMessages }) {
           </div>
         </div>
 
-        <div className={`content-section ${activeSection === 'topicsFavoris' ? 'active' : ''}`}>
+        <div 
+          className={`content-section ${activeSection === 'topicsFavoris' ? 'active' : ''}`}
+          ref={topicsFavorisRef}
+        >
           <h2>Topics favoris</h2>
           <div className="favorites-list">
             {favoriteTopics.length > 0 ? (
@@ -191,11 +211,17 @@ function Profile({ isLoggedIn, messages, setMessages }) {
           </div>
         </div>
 
-        <div className={`content-section ${activeSection === 'pendingUsers' ? 'active' : ''}`}>
+        <div 
+          className={`content-section ${activeSection === 'pendingUsers' ? 'active' : ''}`}
+          ref={pendingUsersRef}
+        >
           {userInfo.statut === 'admin' ? <UsersValidation /> : <p>Vous n'avez pas accès à cette section.</p>}
         </div>
 
-        <div className={`content-section ${activeSection === 'pendingUsers' ? 'active' : ''}`}>
+        <div 
+          className={`content-section ${activeSection === 'usersManagement' ? 'active' : ''}`}
+          ref={usersManagementRef}
+        >
           {userInfo.statut === 'admin' ? (
             <AllUsersManagement currentAdmin={userInfo} />
           ) : (
