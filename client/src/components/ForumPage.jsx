@@ -320,13 +320,15 @@ const ForumPage = ({ isLoggedIn, onLogout, userEmail }) => {
           {filteredMessages.map((msg) => (
             <div key={msg._id} className="message-thread">
               <div className="topic-actions">
-                <button
-                  className={`favorite-btn ${msg.isFavorite ? 'favorited' : ''}`}
-                  onClick={() => handleToggleFavorite(msg._id)}
-                  aria-label={msg.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-                >
-                  {msg.isFavorite ? '★' : '☆'}
-                </button>
+                {isLoggedIn && (
+                  <button
+                    className={`favorite-btn ${msg.isFavorite ? 'favorited' : ''}`}
+                    onClick={() => handleToggleFavorite(msg._id)}
+                    aria-label={msg.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+                  >
+                    {msg.isFavorite ? '★' : '☆'}
+                  </button>
+                )}
                 {(userEmail === msg.user || isAdmin) && (
                   <button 
                     className="delete-topic-btn"

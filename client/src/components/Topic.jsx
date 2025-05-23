@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import CommentForm from './CommentForm';
 import '../styles/Topic.css'
 
-const Topic = ({ msg, onComment, onToggleFavorite }) => {
+const Topic = ({ msg, onComment, onToggleFavorite, isLoggedIn }) => {
   const [isFavorite, setIsFavorite] = useState(msg.isFavorite || false);
 
   const handleFavoriteClick = () => {
@@ -18,13 +18,15 @@ const Topic = ({ msg, onComment, onToggleFavorite }) => {
       <div className="main-message">
         <div className="topic-header">
           <h3 className="topic-title">{msg.title}</h3>
-          <button 
-            className="favorite-button" 
-            onClick={handleFavoriteClick}
-            aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-          >
-            {isFavorite ? '★' : '☆'}
-          </button>
+          {isLoggedIn && (
+            <button 
+              className="favorite-button" 
+              onClick={handleFavoriteClick}
+              aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+            >
+              {isFavorite ? '★' : '☆'}
+            </button>
+          )}
         </div>
         <div className="meta">
           {msg.user} – {msg.timestamp.toLocaleString()}
