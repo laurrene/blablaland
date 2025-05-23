@@ -13,6 +13,7 @@ export default function ConnexionForm({ setIsLoggedIn, setUserEmail }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        
         // Validation simple des champs
         if (!identifiant || !password) {
             setErreur("Veuillez remplir tous les champs.");
