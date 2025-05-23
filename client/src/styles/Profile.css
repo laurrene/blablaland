@@ -27,7 +27,6 @@ body {
     background-color: #f8f9fa;
 }
 
-
 .sidebar h2 {
     color: #ecf0f1;
     margin-bottom: 30px;
@@ -41,18 +40,18 @@ body {
     width: 100%;
     padding: 12px 15px;
     margin-bottom: 8px;
-    background: transparent;
+    background-color: #4f46e5; /* bleu ForumPage */
     border: none;
-    color: #ecf0f1;
+    color: white;
     text-align: left;
     cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
     font-size: 1rem;
 }
 
 .sidebar button:hover {
-    background-color: #34495e;
+    background-color: #4338ca; /* bleu foncé hover */
 }
 
 .main-content h1 {
@@ -70,7 +69,7 @@ body {
 }
 
 .content-section h2 {
-    color: #3498db;
+    color: #4f46e5; /* bleu ForumPage */
     margin-bottom: 20px;
     font-size: 1.4rem;
 }
@@ -111,11 +110,16 @@ input, textarea {
 
 button[type="submit"] {
     padding: 8px 15px;
-    background-color: #4CAF50;
+    background-color: #4f46e5; /* bleu ForumPage */
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #4338ca; /* bleu foncé hover */
 }
 
 .topic-item {
@@ -128,8 +132,10 @@ button[type="submit"] {
   border-radius: 4px;
 }
 
+/* Boutons rouges (suppression) */
+
 .delete-topic-btn {
-  background-color: #ff4444;
+  background-color: #ff4444; /* rouge vif */
   color: white;
   border: none;
   padding: 5px 10px;
@@ -139,14 +145,10 @@ button[type="submit"] {
 }
 
 .delete-topic-btn:hover {
-  background-color: #cc0000;
+  background-color: #cc0000; /* rouge foncé */
 }
 
-.topics-list {
-  margin-top: 20px;
-}
-
-/* Ajoutez ces styles à Profile.css */
+/* Favoris */
 
 .favorites-list {
   margin-top: 20px;
@@ -169,7 +171,7 @@ button[type="submit"] {
 }
 
 .remove-favorite-btn {
-  background-color: #ff6b6b;
+  background-color: #ff4444; /* rouge vif */
   color: white;
   border: none;
   padding: 8px 15px;
@@ -180,11 +182,11 @@ button[type="submit"] {
 }
 
 .remove-favorite-btn:hover {
-  background-color: #ff5252;
+  background-color: #cc0000; /* rouge foncé */
 }
 
 .topic-link {
-  color: #4f46e5;
+  color: #4f46e5; /* bleu ForumPage */
   text-decoration: none;
 }
 

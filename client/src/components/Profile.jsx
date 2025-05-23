@@ -117,7 +117,6 @@ function Profile({ isLoggedIn, messages, setMessages }) {
         <button onClick={() => setActiveSection('profil')}>Page de profil (publique)</button>
         <button onClick={() => setActiveSection('topicsPostes')}>Topics postés</button>
         <button onClick={() => setActiveSection('topicsFavoris')}>Topics favoris</button>
-        <button onClick={() => setActiveSection('messages')}>Messages envoyés</button>
         {userInfo.statut === 'admin' && (
           <button onClick={() => setActiveSection('pendingUsers')}>Utilisateurs en attente</button>
         )}
@@ -190,11 +189,6 @@ function Profile({ isLoggedIn, messages, setMessages }) {
               <p>Aucun topic favori pour le moment.</p>
             )}
           </div>
-        </div>
-
-        <div className={`content-section ${activeSection === 'messages' ? 'active' : ''}`}>
-          <h2>Messages envoyés</h2>
-          <p>Historique de vos messages privés envoyés.</p>
         </div>
 
         <div className={`content-section ${activeSection === 'pendingUsers' ? 'active' : ''}`}>
