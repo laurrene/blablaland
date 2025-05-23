@@ -13,96 +13,95 @@ body {
 }
 
 .sidebar {
-    width: 250px; /* Réduit de 280px */
+    width: 250px; 
     background-color: #2c3e50;
     color: white;
-    padding: 15px; /* Réduit de 25px */
+    padding: 15px; 
     overflow-y: auto;
 }
 
 .main-content {
     flex: 1;
-    padding: 20px; /* Réduit de 30px */
+    padding: 20px;
     overflow-y: auto;
     background-color: #f8f9fa;
 }
 
 .sidebar h2 {
     color: #ecf0f1;
-    margin-bottom: 20px; /* Réduit de 30px */
-    padding-bottom: 10px; /* Réduit de 15px */
+    margin-bottom: 20px;
+    padding-bottom: 10px; 
     border-bottom: 1px solid #34495e;
-    font-size: 1.3rem; /* Réduit de 1.5rem */
+    font-size: 1.3rem; 
 }
 
 .sidebar button {
     display: block;
     width: 100%;
-    padding: 10px 12px; /* Réduit de 12px 15px */
-    margin-bottom: 6px; /* Réduit de 8px */
+    padding: 10px 12px; 
+    margin-bottom: 6px; 
     background-color: #4f46e5;
     border: none;
     color: white;
     text-align: left;
     cursor: pointer;
-    border-radius: 4px; /* Réduit de 6px */
-    transition: background-color 0.2s ease; /* Réduit de 0.3s */
-    font-size: 0.9rem; /* Réduit de 1rem */
+    border-radius: 4px;
+    transition: background-color 0.2s ease; 
+    font-size: 0.9rem; 
 }
 
 .main-content h1 {
     color: #2c3e50;
-    margin-bottom: 20px; /* Réduit de 30px */
-    font-size: 1.8rem; /* Réduit de 2rem */
+    margin-bottom: 20px; 
+    font-size: 1.8rem;
 }
 
 .content-section {
     background: white;
-    padding: 15px; /* Réduit de 25px */
-    border-radius: 4px; /* Réduit de 6px */
-    box-shadow: 0 1px 5px rgba(0,0,0,0.05); /* Réduit de 10px */
-    margin-bottom: 15px; /* Réduit de 20px */
-    min-height: 30vh; /* Réduit de 50vh */
+    padding: 15px; 
+    border-radius: 4px; 
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+    margin-bottom: 15px; 
+    min-height: 30vh; 
 }
 
 .content-section h2 {
     color: #4f46e5;
-    margin-bottom: 15px; /* Réduit de 20px */
-    font-size: 1.2rem; /* Réduit de 1.4rem */
+    margin-bottom: 15px; 
+    font-size: 1.2rem; 
 }
 
 .topic-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px; /* Réduit de 15px */
-    margin-bottom: 12px; /* Réduit de 15px */
+    padding: 12px;
+    margin-bottom: 12px; 
     background-color: #fff;
-    border-radius: 4px; /* Réduit de 8px */
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Réduit de 3px */
+    border-radius: 4px; 
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
 }
-
 .topic-meta {
     color: #666;
-    font-size: 0.85em; /* Réduit de 0.9em */
-    margin-right: 10px; /* Réduit de 15px */
+    font-size: 0.85em; 
+    margin-right: 10px;
 }
 
 .topics-list, .favorites-list {
-    margin-top: 15px; /* Réduit de 20px */
+    margin-top: 15px; 
 }
 
 .delete-topic-btn, .remove-favorite-btn {
-    padding: 6px 12px; /* Réduit de 8px 15px */
-    font-size: 0.85rem; /* Ajout pour uniformité */
+    padding: 6px 12px; 
+    font-size: 0.85rem;
 }
 
 .content-section.active {
-    border-left-width: 3px; /* Réduit de 4px */
+    border-left-width: 3px;
 }
 
-/* Espacement admin réduit */
+
 .admin-section {
-    margin-top: 15px; /* Réduit de 20px */
-    padding: 15px; /* Réduit de 20px */
+    margin-top: 15px; 
+    padding: 15px; 
 }
