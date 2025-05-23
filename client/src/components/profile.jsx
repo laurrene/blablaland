@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import '../styles/Profile.css';
+import UsersValidation from './AdminUsersValidation'; // Assure-toi que le chemin est correct
+
 function Profile({ isLoggedIn, messages, setMessages }) {
   const { email } = useParams();
   const [activeSection, setActiveSection] = useState('informations');
@@ -10,6 +12,18 @@ function Profile({ isLoggedIn, messages, setMessages }) {
 
   // Si email est présent dans les params, c'est une vue publique
   const isPublicProfile = !!email;
+  const userInfo = {
+    prenom: localStorage.getItem('firstName') || 'Prénom inconnu',
+    nom: localStorage.getItem('lastName') || 'Nom inconnu',
+    email: localStorage.getItem('userEmail') || 'Email inconnu',
+    statut: localStorage.getItem('userStatut') // ex: 'admin' ou 'membre'
+  };
+
+  useEffect(() => {
+    const userTopics = messages.filter(topic => topic.user === userInfo.email);
+    setPostedTopics(userTopics);
+  }, [messages, userInfo.email]);
+
   const showSection = (sectionId) => {
     setActiveSection(sectionId);
   };
@@ -69,16 +83,18 @@ function Profile({ isLoggedIn, messages, setMessages }) {
 
   return (
     <div style={{ display: 'flex' }}>
-      {!isPublicProfile && (
-        <div className="sidebar">
-          <h2>Mon Espace</h2>
-          <button onClick={() => showSection('informations')}>Informations personnelles</button>
-          <button onClick={() => showSection('profil')}>Page de profil (publique)</button>
-          <button onClick={() => showSection('topicsPostes')}>Topics postés</button>
-          <button onClick={() => showSection('topicsFavoris')}>Topics favoris</button>
-          <button onClick={() => showSection('messages')}>Messages envoyés</button>
-        </div>
-      )}
+      <div className="sidebar">
+        <h2>Mon Espace</h2>
+        <button onClick={() => showSection('informations')}>Informations personnelles</button>
+        <button onClick={() => showSection('profil')}>Page de profil (publique)</button>
+        <button onClick={() => showSection('topicsPostes')}>Topics postés</button>
+        <button onClick={() => showSection('topicsFavoris')}>Topics favoris</button>
+        <button onClick={() => showSection('messages')}>Messages envoyés</button>
+
+        {userInfo.statut === 'admin' && (
+          <button onClick={() => showSection('pendingUsers')}>Utilisateurs en attente</button>
+        )}
+      </div>
 
       <div className="main-content">
         <h1>{isPublicProfile ? `Profil de ${profileUser.prenom} ${profileUser.nom}` : 'Bienvenue sur votre page de profil'}</h1>
@@ -132,6 +148,16 @@ function Profile({ isLoggedIn, messages, setMessages }) {
         <div className={`content-section ${activeSection === 'messages' ? 'active' : ''}`}>
           <h2>Messages envoyés</h2>
           <p>Historique de vos messages privés envoyés.</p>
+        </div>
+
+        {/* Nouvel onglet admin */}
+        <div className={`content-section ${activeSection === 'pendingUsers' ? 'active' : ''}`}>
+          <h2>Utilisateurs en attente</h2>
+          {userInfo.statut === 'admin' ? (
+            <UsersValidation />
+          ) : (
+            <p>Vous n'avez pas accès à cette section.</p>
+          )}
         </div>
       </div>
     </div>
