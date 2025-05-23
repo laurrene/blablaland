@@ -34,6 +34,7 @@ export default function ConnexionForm({ setIsLoggedIn, setUserEmail }) {
                 localStorage.setItem('userEmail', data.user.email);
                 localStorage.setItem('firstName', data.user.prenom);
                 localStorage.setItem('lastName', data.user.nom);
+                localStorage.setItem('userStatut', data.user.statut); // ajout du statut
                 setIsLoggedIn(true);
                 setUserEmail(data.user.email);
                 navigate("/forum");

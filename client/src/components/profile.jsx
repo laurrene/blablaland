@@ -1,15 +1,15 @@
-// client/components/Profile.jsx
 import { useState, useEffect } from 'react';
 import '../styles/Profile.css';
 
 function Profile({ isLoggedIn, messages, setMessages }) {
   const [activeSection, setActiveSection] = useState('informations');
   const [postedTopics, setPostedTopics] = useState([]);
-  
+
   const userInfo = {
     prenom: localStorage.getItem('firstName') || 'Prénom inconnu',
     nom: localStorage.getItem('lastName') || 'Nom inconnu',
     email: localStorage.getItem('userEmail') || 'Email inconnu',
+    statut: localStorage.getItem('userStatut') || 'Membre' // ajout du statut
   };
 
   useEffect(() => {
@@ -55,6 +55,7 @@ function Profile({ isLoggedIn, messages, setMessages }) {
           <p>Prénom : {userInfo.prenom}</p>
           <p>Nom : {userInfo.nom}</p>
           <p>Email : {userInfo.email}</p>
+          <p>Statut : {userInfo.statut}</p>
         </div>
 
         <div className={`content-section ${activeSection === 'profil' ? 'active' : ''}`}>

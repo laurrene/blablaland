@@ -28,6 +28,8 @@ async function startServer() {
 }
 
 startServer();
+
+// Connexion
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -39,23 +41,41 @@ app.post('/api/login', async (req, res) => {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: "Mot de passe incorrect" });
 
-    res.json({ message: "Connexion réussie", user: { prenom: user.prenom, nom: user.nom, email: user.email } });
+    res.json({
+      message: "Connexion réussie",
+      user: {
+        prenom: user.prenom,
+        nom: user.nom,
+        email: user.email,
+        statut: user.statut || 'membre' // valeur par défaut si jamais
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
 
+// Inscription
 app.post('/api/signup', async (req, res) => {
   try {
     const { prenom, nom, email, password } = req.body;
-    if (!prenom || !nom || !email || !password) return res.status(400).json({ error: "Champs manquants" });
+    if (!prenom || !nom || !email || !password)
+      return res.status(400).json({ error: "Champs manquants" });
 
     const existingUser = await usersCollection.findOne({ email });
-    if (existingUser) return res.status(409).json({ error: "Email déjà utilisé" });
+    if (existingUser)
+      return res.status(409).json({ error: "Email déjà utilisé" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = { prenom, nom, email, password: hashedPassword };
+    const newUser = {
+      prenom,
+      nom,
+      email,
+      password: hashedPassword,
+      statut: 'membre', // statut par défaut
+      createdAt: new Date()
+    };
 
     await usersCollection.insertOne(newUser);
     res.status(201).json({ message: "Utilisateur créé avec succès" });
@@ -65,6 +85,7 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
+// Création d'un topic
 app.post('/api/topics', async (req, res) => {
   try {
     const { user, title, content, timestamp, comments, isFavorite } = req.body;
@@ -84,6 +105,7 @@ app.post('/api/topics', async (req, res) => {
   }
 });
 
+// Récupération de tous les topics
 app.get('/api/topics', async (req, res) => {
   try {
     const topics = await db.collection('topics').find({}).toArray();
@@ -94,15 +116,16 @@ app.get('/api/topics', async (req, res) => {
   }
 });
 
+// Suppression d'un topic
 app.delete('/api/topics/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await db.collection('topics').deleteOne({ _id: new ObjectId(id) });
-    
+
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: 'Topic non trouvé' });
     }
-    
+
     res.status(200).json({ message: 'Topic supprimé avec succès' });
   } catch (err) {
     console.error('Erreur serveur (DELETE /api/topics/:id) :', err);
