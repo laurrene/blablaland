@@ -29,34 +29,7 @@ async function startServer() {
 
 startServer();
 
-// Connexion
-app.post('/api/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: "Champs manquants" });
-
-    const user = await usersCollection.findOne({ email });
-    if (!user) return res.status(401).json({ error: "Utilisateur inconnu" });
-
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(401).json({ error: "Mot de passe incorrect" });
-
-    res.json({
-      message: "Connexion réussie",
-      user: {
-        prenom: user.prenom,
-        nom: user.nom,
-        email: user.email,
-        statut: user.statut || 'membre' // valeur par défaut si jamais
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
-  }
-});
-
-// Inscription
+// Inscription : statut en attente
 app.post('/api/signup', async (req, res) => {
   try {
     const { prenom, nom, email, password } = req.body;
@@ -73,17 +46,49 @@ app.post('/api/signup', async (req, res) => {
       nom,
       email,
       password: hashedPassword,
-      statut: 'membre', // statut par défaut
+      statut: 'en_attente', // <-- Statut par défaut à l'inscription
       createdAt: new Date()
     };
 
     await usersCollection.insertOne(newUser);
-    res.status(201).json({ message: "Utilisateur créé avec succès" });
+    res.status(201).json({ message: "Inscription réussie, votre compte est en attente de validation." });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
+// Connexion : refuser si statut en_attente
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: "Champs manquants" });
+
+    const user = await usersCollection.findOne({ email });
+    if (!user) return res.status(401).json({ error: "Utilisateur inconnu" });
+
+    if (user.statut === 'en_attente') {
+      return res.status(403).json({ error: "Votre compte est en attente de validation par un administrateur." });
+    }
+
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ error: "Mot de passe incorrect" });
+
+    res.json({
+      message: "Connexion réussie",
+      user: {
+        prenom: user.prenom,
+        nom: user.nom,
+        email: user.email,
+        statut: user.statut
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
 
 // Création d'un topic
 app.post('/api/topics', async (req, res) => {
@@ -193,6 +198,37 @@ app.delete('/api/topics/:topicId/comments/:commentId', async (req, res) => {
     res.status(200).json({ message: 'Commentaire supprimé avec succès' });
   } catch (err) {
     console.error('Erreur serveur (DELETE /api/topics/:topicId/comments/:commentId) :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+//Recuperer les gens en attente
+app.get('/api/users/en-attente', async (req, res) => {
+  try {
+    const pendingUsers = await usersCollection.find({ statut: 'en_attente' }).toArray();
+    res.json(pendingUsers);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+//Valider qqn
+app.post('/api/users/valider/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await usersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { statut: 'membre' } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    res.json({ message: 'Utilisateur validé avec succès' });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });

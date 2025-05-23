@@ -1,9 +1,9 @@
-const user = {
+const newUser = {
   prenom,
   nom,
   email,
   password: hashedPassword,
-  statut: 'membre', // ou 'admin' si besoin
+  statut: "en_attente" // par défaut à l'inscription
 };
 
 await usersCollection.insertOne(user);

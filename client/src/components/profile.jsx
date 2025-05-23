@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import '../styles/Profile.css';
+import UsersValidation from './AdminUsersValidation'; // Assure-toi que le chemin est correct
 
 function Profile({ isLoggedIn, messages, setMessages }) {
   const [activeSection, setActiveSection] = useState('informations');
@@ -9,7 +10,7 @@ function Profile({ isLoggedIn, messages, setMessages }) {
     prenom: localStorage.getItem('firstName') || 'Prénom inconnu',
     nom: localStorage.getItem('lastName') || 'Nom inconnu',
     email: localStorage.getItem('userEmail') || 'Email inconnu',
-    statut: localStorage.getItem('userStatut') || 'Membre' // ajout du statut
+    statut: localStorage.getItem('userStatut') // ex: 'admin' ou 'membre'
   };
 
   useEffect(() => {
@@ -45,6 +46,10 @@ function Profile({ isLoggedIn, messages, setMessages }) {
         <button onClick={() => showSection('topicsPostes')}>Topics postés</button>
         <button onClick={() => showSection('topicsFavoris')}>Topics favoris</button>
         <button onClick={() => showSection('messages')}>Messages envoyés</button>
+
+        {userInfo.statut === 'admin' && (
+          <button onClick={() => showSection('pendingUsers')}>Utilisateurs en attente</button>
+        )}
       </div>
 
       <div className="main-content">
@@ -99,6 +104,16 @@ function Profile({ isLoggedIn, messages, setMessages }) {
         <div className={`content-section ${activeSection === 'messages' ? 'active' : ''}`}>
           <h2>Messages envoyés</h2>
           <p>Historique de vos messages privés envoyés.</p>
+        </div>
+
+        {/* Nouvel onglet admin */}
+        <div className={`content-section ${activeSection === 'pendingUsers' ? 'active' : ''}`}>
+          <h2>Utilisateurs en attente</h2>
+          {userInfo.statut === 'admin' ? (
+            <UsersValidation />
+          ) : (
+            <p>Vous n'avez pas accès à cette section.</p>
+          )}
         </div>
       </div>
     </div>
