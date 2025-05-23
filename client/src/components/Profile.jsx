@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/Profile.css';
 import UsersValidation from './AdminUsersValidation';
 import AllUsersManagement from './AllUsersManagement';
 
 function Profile({ isLoggedIn, messages, setMessages }) {
   const { email } = useParams();
+  const navigate = useNavigate();
+
   const [activeSection, setActiveSection] = useState('informations');
   const [postedTopics, setPostedTopics] = useState([]);
   const [favoriteTopics, setFavoriteTopics] = useState([]);
@@ -35,7 +37,7 @@ function Profile({ isLoggedIn, messages, setMessages }) {
 
         setProfileUser(userData);
 
-        // Filtrer topics ici une fois les données utilisateur chargées
+        // Filtrer les topics postés par cet utilisateur
         const userTopics = messages.filter(topic => topic.user === userData.email);
         setPostedTopics(userTopics);
 
@@ -70,10 +72,10 @@ function Profile({ isLoggedIn, messages, setMessages }) {
 
       if (!response.ok) throw new Error('Erreur serveur');
 
-      // Mettre à jour la liste des favoris
+      // Met à jour la liste des favoris
       fetchFavoriteTopics();
-      
-      // Mettre à jour l'état dans ForumPage si nécessaire
+
+      // Met à jour l'état dans ForumPage si nécessaire
       setMessages(prev =>
         prev.map(msg =>
           msg._id === topicId ? { ...msg, isFavorite: false } : msg
@@ -84,12 +86,12 @@ function Profile({ isLoggedIn, messages, setMessages }) {
     }
   };
 
-  // Fonction pour récupérer les favoris
+  // Fonction pour récupérer les topics favoris
   const fetchFavoriteTopics = async () => {
     try {
       const userEmailToFetch = isPublicProfile ? email : profileUser?.email;
       if (!userEmailToFetch) return;
-      
+
       const response = await fetch(`http://localhost:3000/api/users/${userEmailToFetch}/favorites`);
       if (!response.ok) throw new Error('Erreur serveur');
       const favorites = await response.json();
@@ -99,7 +101,7 @@ function Profile({ isLoggedIn, messages, setMessages }) {
     }
   };
 
-  // Ajoutez cet useEffect pour charger les favoris
+  // Chargement des favoris à chaque changement de profileUser
   useEffect(() => {
     if (profileUser) {
       fetchFavoriteTopics();
@@ -112,7 +114,14 @@ function Profile({ isLoggedIn, messages, setMessages }) {
   return (
     <div style={{ display: 'flex' }}>
       <div className="sidebar">
-        <h2>Mon Espace</h2>
+        <h2
+          onClick={() => navigate('/forum')}
+          style={{ cursor: 'pointer', color: '#4f46e5' }}
+          title="Aller au forum"
+        >
+          Blablaland
+        </h2>
+
         <button onClick={() => setActiveSection('informations')}>Informations personnelles</button>
         <button onClick={() => setActiveSection('profil')}>Page de profil (publique)</button>
         <button onClick={() => setActiveSection('topicsPostes')}>Topics postés</button>
