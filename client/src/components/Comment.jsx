@@ -26,6 +26,7 @@ const Comment = ({ comment, onDelete, currentUser, isAdmin }) => {
       <div className="comment-content">{comment.content}</div>
     </div>
   );
+  
 };
 
 export default Comment;
