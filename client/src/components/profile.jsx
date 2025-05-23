@@ -2,18 +2,17 @@
 import { useState, useEffect } from 'react';
 import '../styles/Profile.css';
 
-function Profile({ isLoggedIn, messages, setMessages, userEmail }) {
+function Profile({ isLoggedIn, messages, setMessages }) {
   const [activeSection, setActiveSection] = useState('informations');
   const [postedTopics, setPostedTopics] = useState([]);
-  const [userInfo, setUserInfo] = useState({
-    username: 'LaurreneLI',
-    email: userEmail || 'laurrene@example.com',
-    joinDate: 'Janvier 2025'
-  });
+  
+  const userInfo = {
+    prenom: localStorage.getItem('firstName') || 'Prénom inconnu',
+    nom: localStorage.getItem('lastName') || 'Nom inconnu',
+    email: localStorage.getItem('userEmail') || 'Email inconnu',
+  };
 
   useEffect(() => {
-    // Filtrer les topics postés par l'utilisateur actuel
-    // On utilise maintenant userEmail pour identifier l'utilisateur
     const userTopics = messages.filter(topic => topic.user === userInfo.email);
     setPostedTopics(userTopics);
   }, [messages, userInfo.email]);
@@ -24,18 +23,16 @@ function Profile({ isLoggedIn, messages, setMessages, userEmail }) {
 
   const handleDeleteTopic = async (topicId) => {
     try {
-      // Suppression dans la base de données
       const response = await fetch(`http://localhost:3000/api/topics/${topicId}`, {
         method: 'DELETE'
       });
 
       if (!response.ok) throw new Error('Erreur lors de la suppression');
 
-      // Mise à jour de l'état local
       const updatedMessages = messages.filter(topic => topic._id !== topicId);
       setMessages(updatedMessages);
     } catch (error) {
-      console.error('Erreur lors de la suppression du topic:', error);
+      console.error('Erreur lors de la suppression du topic :', error);
     }
   };
 
@@ -55,9 +52,9 @@ function Profile({ isLoggedIn, messages, setMessages, userEmail }) {
 
         <div className={`content-section ${activeSection === 'informations' ? 'active' : ''}`}>
           <h2>Informations personnelles</h2>
-          <p>Nom d'utilisateur : {userInfo.username}</p>
+          <p>Prénom : {userInfo.prenom}</p>
+          <p>Nom : {userInfo.nom}</p>
           <p>Email : {userInfo.email}</p>
-          <p>Membre depuis : {userInfo.joinDate}</p>
         </div>
 
         <div className={`content-section ${activeSection === 'profil' ? 'active' : ''}`}>
@@ -77,7 +74,7 @@ function Profile({ isLoggedIn, messages, setMessages, userEmail }) {
                     </a>
                   </h3>
                   <div className="topic-meta">
-                    Posté le: {new Date(topic.timestamp).toLocaleDateString()}
+                    Posté le : {new Date(topic.timestamp).toLocaleDateString()}
                   </div>
                   <button 
                     className="delete-topic-btn"

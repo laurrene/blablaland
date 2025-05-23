@@ -31,15 +31,18 @@ export default function ConnexionForm({ setIsLoggedIn, setUserEmail }) {
             } else {
                 alert("Connexion réussie !");
                 localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userEmail', identifiant);
+                localStorage.setItem('userEmail', data.user.email);
+                localStorage.setItem('firstName', data.user.prenom);
+                localStorage.setItem('lastName', data.user.nom);
                 setIsLoggedIn(true);
-                setUserEmail(identifiant);
+                setUserEmail(data.user.email);
                 navigate("/forum");
             }
         } catch (err) {
             setErreur("Erreur réseau");
         }
     };
+
 
     const handleReset = () => {
         setIdentifiant("");
