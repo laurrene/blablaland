@@ -1,19 +1,16 @@
 import React, { useRef, useState } from 'react';
 import '../styles/TopicForm.css';
 
-// Composant de formulaire pour créer/modifier un sujet avec éditeur de text
+// Formulaire de création/modification de sujet avec éditeur riche
 const TopicForm = ({ onSubmit, onCancel }) => {
-  // État pour le titre du sujet
   const [title, setTitle] = useState('');
-  // État pour suivre les formats de texte actifs (gras, italique, etc.)
   const [activeFormats, setActiveFormats] = useState([]);
-  // Référence pour accéder à l'élément éditable (contentEditable)
   const editorRef = useRef(null);
 
-  // Basculer un format de texte dans l'éditeur
+  // Applique ou retire un format (gras, italique, etc.)
   const toggleFormat = (command) => {
     if (!editorRef.current) return;
-      editorRef.current.focus(); 
+    editorRef.current.focus();
 
     if (command === 'blockquote') {
       const isBlockquote = document.queryCommandValue('formatBlock') === 'blockquote';
@@ -24,7 +21,6 @@ const TopicForm = ({ onSubmit, onCancel }) => {
       return;
     }
 
-    // Pour les autres commandes (bold, italic, etc.)
     const isActive = document.queryCommandState(command);
     document.execCommand(command, false, null);
     setActiveFormats((prev) =>
@@ -32,14 +28,12 @@ const TopicForm = ({ onSubmit, onCancel }) => {
     );
   };
 
-  // Gère la soumission du formulaire
+  // Gère la validation du formulaire
   const handleSubmit = (e) => {
     e.preventDefault();
     const content = editorRef.current.innerHTML;
-
-    // Valide que le titre et le contenu ne sont pas vides
     if (title.trim() && content.trim()) {
-      onSubmit({ title, content }); 
+      onSubmit({ title, content });
       setTitle('');
       editorRef.current.innerHTML = '';
       setActiveFormats([]);
@@ -48,7 +42,6 @@ const TopicForm = ({ onSubmit, onCancel }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      {/* Champ pour le titre */}
       <div className="form-group">
         <label htmlFor="title">Titre</label>
         <input
@@ -62,7 +55,6 @@ const TopicForm = ({ onSubmit, onCancel }) => {
         />
       </div>
 
-      {/* Éditeur de texte enrichi */}
       <div className="editor-container">
         <div className="editor-toolbar">
           <button type="button" className={activeFormats.includes('bold') ? 'active' : ''} onClick={() => toggleFormat('bold')}><b>B</b></button>
@@ -72,7 +64,6 @@ const TopicForm = ({ onSubmit, onCancel }) => {
           <button type="button" onClick={() => document.execCommand('insertUnorderedList')}>•</button>
           <button type="button" onClick={() => document.execCommand('insertOrderedList')}>1.</button>
         </div>
-        {/* Zone éditable  */}
         <div
           className="editor"
           contentEditable
@@ -83,7 +74,6 @@ const TopicForm = ({ onSubmit, onCancel }) => {
         />
       </div>
 
-      {/* Boutons d'action */}
       <div className="modal-actions">
         <button type="submit">Publier</button>
         <button type="button" onClick={onCancel}>Annuler</button>

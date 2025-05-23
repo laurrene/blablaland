@@ -16,16 +16,19 @@ export default function ProfileSections({
   setMessages,
   fetchFavoriteTopics
 }) {
+  // Réfs pour chaque section
   const informationsRef = useRef(null);
   const topicsPostesRef = useRef(null);
   const topicsFavorisRef = useRef(null);
   const pendingUsersRef = useRef(null);
   const usersManagementRef = useRef(null);
 
+  // Fonction pour défiler vers une section
   const scrollToSection = (ref) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Effet pour faire défiler vers la section active
   useEffect(() => {
     const refs = {
       informations: informationsRef,
@@ -42,8 +45,10 @@ export default function ProfileSections({
 
   return (
     <div className="main-content">
+      {/* Titre selon profil public ou personnel */}
       <h1>{isPublicProfile ? `Profil de ${profileUser.prenom} ${profileUser.nom}` : 'Bienvenue sur votre page de profil'}</h1>
 
+      {/* Sections du profil */}
       <ProfileInfoSection 
         activeSection={activeSection}
         informationsRef={informationsRef}
@@ -67,6 +72,7 @@ export default function ProfileSections({
         fetchFavoriteTopics={fetchFavoriteTopics}
       />
 
+      {/* Sections admin, conditionnées au statut */}
       <div 
         className={`content-section ${activeSection === 'pendingUsers' ? 'active' : ''}`}
         ref={pendingUsersRef}

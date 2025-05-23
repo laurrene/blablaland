@@ -11,6 +11,7 @@ export default function InscriptionForm() {
     const [erreur, setErreur] = useState("");
     const navigate = useNavigate();
 
+    // Gestion de la soumission du formulaire
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -45,6 +46,7 @@ export default function InscriptionForm() {
         }
     };
 
+    // Réinitialise tous les champs du formulaire
     const handleReset = () => {
         setPrenom("");
         setNom("");
@@ -56,12 +58,14 @@ export default function InscriptionForm() {
 
     return (
         <div className="container">
+            {/* Titre avec lien vers forum */}
             <Link to="/forum">
                 <h1 style={{ color: "#b92b27", cursor: "pointer" }}>Blablaland</h1>
             </Link>
 
             <p>Blabla partout, silence nulle part.</p>
 
+            {/* Formulaire d'inscription */}
             <div className="login-box">
                 <p>Enregistrement</p>
                 <form onSubmit={handleSubmit}>
@@ -86,11 +90,14 @@ export default function InscriptionForm() {
                         <input type="password" id="password2" value={password2} onChange={(e) => setPassword2(e.target.value)} />
                     </div>
 
+                    {/* Affiche l'erreur si présente */}
                     {erreur && <p style={{ color: 'red' }}>{erreur}</p>}
 
                     <button type="submit" className="submit-btn">Enregistrement</button>
                     <button type="button" className="reset-btn" onClick={handleReset}>Annuler</button>
                 </form>
+
+                {/* Lien vers page de connexion */}
                 <Link to="/connexion">Déjà un compte ? Se connecter</Link>
             </div>
 

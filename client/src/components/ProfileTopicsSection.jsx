@@ -5,6 +5,7 @@ export default function ProfileTopicsSection({
   messages,
   setMessages
 }) {
+  // Supprime un topic via API et met à jour la liste locale
   const handleDeleteTopic = async (topicId) => {
     try {
       const response = await fetch(`http://localhost:3000/api/topics/${topicId}`, { method: 'DELETE' });
@@ -21,9 +22,11 @@ export default function ProfileTopicsSection({
       className={`content-section ${activeSection === 'topicsPostes' ? 'active' : ''}`}
       ref={topicsPostesRef}
     >
+      {/* Titre et liste des topics postés */}
       <h2>Topics postés</h2>
       <div className="topics-list">
         {postedTopics.length > 0 ? (
+          // Affiche chaque topic avec lien et bouton supprimer
           postedTopics.map(topic => (
             <div key={topic._id} className="topic-item">
               <h3>
